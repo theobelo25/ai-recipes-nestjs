@@ -13,7 +13,6 @@ export class PrismaService
   implements OnModuleInit, OnApplicationShutdown
 {
   constructor(private readonly configService: ConfigService) {
-    console.log(configService.get<string>('DATABASE_URL'));
     const adapter = new PrismaPg({
       connectionString: configService.get<string>('DATABASE_URL'),
     });
