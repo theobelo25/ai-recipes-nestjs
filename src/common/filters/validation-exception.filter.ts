@@ -1,30 +1,30 @@
-import {
-  ExceptionFilter,
-  Catch,
-  ArgumentsHost,
-  BadRequestException,
-} from '@nestjs/common';
-import { HttpAdapterHost } from '@nestjs/core';
-import { FastifyReply } from 'fastify';
+import { ExceptionFilter, Catch, ArgumentsHost } from '@nestjs/common';
 
-@Catch(BadRequestException)
+import { FastifyError, FastifyReply, FastifyRequest } from 'fastify';
+
+@Catch()
 export class ValidationExceptionFilter implements ExceptionFilter {
-  constructor(private readonly httpAdaptorHost: HttpAdapterHost) {}
+  catch(exception: FastifyError, host: ArgumentsHost) {
+    if (!exception.validation) throw exception;
 
-  catch(exception: BadRequestException, host: ArgumentsHost) {
-    const { httpAdapter } = this.httpAdaptorHost;
     const ctx = host.switchToHttp();
     const reply = ctx.getResponse<FastifyReply>();
-    const status = exception.getStatus();
-    const message = exception.getResponse();
+    const request = ctx.getRequest<FastifyRequest>();
 
-    const responseBody = {
-      status,
+    console.log(exception.validation);
+
+    const formattedErrors = exception.validation.map((err) => ({
+      field: err.instancePath?.replace('/', '') || err.params?.missingPropery,
+      message: err.message,
+    }));
+
+    reply.status(400).send({
+      statusCode: 400,
+      error: 'ValidationError',
+      message: 'Request validation failed',
+      errors: formattedErrors,
+      path: request.url,
       timestamp: new Date().toISOString(),
-      path: httpAdapter.getRequestUrl(ctx.getRequest()) as string,
-      message,
-    };
-
-    httpAdapter.reply(reply, responseBody, status);
+    });
   }
 }
