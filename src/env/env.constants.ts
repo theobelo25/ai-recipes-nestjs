@@ -1,0 +1,11 @@
+import Joi from 'joi';
+
+export const ENV_VALIDATION_SCHEMA = Joi.object({
+  APP_PORT: Joi.number().required().default(3000),
+  DATASOURCE_USERNAME: Joi.required(),
+  DATASOURCE_PASSWORD: Joi.required(),
+  DATASOURCE_HOST: Joi.required(),
+  DATASOURCE_PORT: Joi.number().integer().positive().required(),
+  DATASOURCE_DATABASE: Joi.required(),
+  DATABASE_URL: Joi.required(),
+});

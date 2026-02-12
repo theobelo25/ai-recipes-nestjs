@@ -4,9 +4,9 @@ import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
-import { ValidationModule } from './common/validation/validation.module';
 import { PrismaExceptionFilter } from './common/filters/prisma-exception.filter';
 import { ValidationExceptionFilter } from './common/filters/validation-exception.filter';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -14,11 +14,9 @@ async function bootstrap() {
     new FastifyAdapter(),
   );
 
-  // Get the instance of ValidationModule via DI
-  const validationModule = app
-    .select(ValidationModule)
-    .get(ValidationModule, { strict: true });
-  validationModule.configure(app);
+  // Get Config Variable
+  const configService = app.get(ConfigService);
+  const port = configService.get<number>('APP_PORT')!;
 
   // Apply Global Filters
   const httpAdapter = app.get(HttpAdapterHost);
@@ -27,7 +25,7 @@ async function bootstrap() {
     new ValidationExceptionFilter(httpAdapter),
   );
 
-  await app.listen(3333);
-  console.log('Server running on http://localhost:3333');
+  await app.listen(port);
+  console.log(`Server running on http://localhost:${port}`);
 }
 bootstrap().catch((error) => console.error(error));

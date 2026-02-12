@@ -5,16 +5,16 @@ import {
 } from '@nestjs/common';
 import { PrismaClient } from './generated/client';
 import { PrismaPg } from '@prisma/adapter-pg';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class PrismaService
   extends PrismaClient
   implements OnModuleInit, OnApplicationShutdown
 {
-  constructor() {
+  constructor(private readonly configService: ConfigService) {
     const adapter = new PrismaPg({
-      connectionString:
-        'postgresql://postgres:pass123@localhost:5434/postgres?schema=public',
+      connectionString: configService.get<string>('DATABASE_URL'),
     });
     super({ adapter });
   }
