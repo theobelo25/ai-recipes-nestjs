@@ -7,6 +7,7 @@ import {
 import { PrismaExceptionFilter } from './common/filters/prisma-exception.filter';
 import { ValidationExceptionFilter } from './common/filters/validation-exception.filter';
 import { ConfigService } from '@nestjs/config';
+import fastifyCookie from '@fastify/cookie';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -17,6 +18,12 @@ async function bootstrap() {
   // Get Config Variable
   const configService = app.get(ConfigService);
   const port = configService.get<number>('APP_PORT')!;
+  const jwtSecret = configService.get<string>('JWT_SECRET');
+
+  // Register cookie for jwt
+  await app.register(fastifyCookie, {
+    secret: jwtSecret, // A secret is recommended for signed cookies
+  });
 
   // Apply Global Filters
   const httpAdapter = app.get(HttpAdapterHost);

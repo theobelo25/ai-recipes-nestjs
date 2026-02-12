@@ -8,4 +8,6 @@ export const ENV_VALIDATION_SCHEMA = Joi.object({
   DATASOURCE_PORT: Joi.required(),
   DATASOURCE_DATABASE: Joi.required(),
   DATABASE_URL: Joi.required(),
+  JWT_SECRET: Joi.required(),
+  JWT_TTL: Joi.required(),
 });

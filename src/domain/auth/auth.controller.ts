@@ -1,10 +1,12 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 
 import { signupSchema } from './schemas/signup.schema';
 import { SignupDto } from './dtos/signup.dto';
 import { ValidationService } from 'src/common/validation/validation.service';
 import { RouteSchema } from '@nestjs/platform-fastify';
+import { type FastifyReply } from 'fastify';
+import { CreateUserDto } from '../users/dtos/createUser.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -15,8 +17,19 @@ export class AuthController {
 
   @Post()
   @RouteSchema({ body: signupSchema })
-  signup(@Body() signupDto: SignupDto) {
-    const { confirmPassword, ...createUserDto } = signupDto;
-    return this.authService.signup(createUserDto);
+  async signup(
+    @Body() signupDto: SignupDto,
+    @Res({ passthrough: true }) reply: FastifyReply,
+  ) {
+    const { username, email, password } = signupDto;
+    const createUserDto: CreateUserDto = { username, email, password };
+
+    const token = await this.authService.signup(createUserDto);
+
+    reply.setCookie('token', token, {
+      secure: true,
+      httpOnly: true,
+      sameSite: true,
+    });
   }
 }
