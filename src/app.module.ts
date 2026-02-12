@@ -5,9 +5,10 @@ import { ValidationModule } from './common/validation/validation.module';
 import { UsersModule } from './domain/users/users.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { EnvModule } from './env/env.module';
+import { AuthModule } from './domain/auth/auth.module';
 
 @Module({
-  imports: [ValidationModule, UsersModule, PrismaModule, EnvModule],
+  imports: [ValidationModule, UsersModule, PrismaModule, EnvModule, AuthModule],
   controllers: [AppController],
   providers: [AppService],
 })
