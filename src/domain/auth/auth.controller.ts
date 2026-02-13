@@ -4,7 +4,6 @@ import {
   HttpCode,
   HttpStatus,
   Post,
-  Req,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -14,11 +13,10 @@ import { signupSchema } from './schemas/signup.schema';
 import { SignupDto } from './dtos/signup.dto';
 import { ValidationService } from 'src/common/validation/validation.service';
 import { RouteSchema } from '@nestjs/platform-fastify';
-import type { FastifyRequest, FastifyReply } from 'fastify';
+import type { FastifyReply } from 'fastify';
 import { CreateUserDto } from '../users/dtos/createUser.dto';
 import { loginSchema } from './schemas/login.schema';
 import { LocalAuthGuard } from './guards/local-auth/local-auth.guard';
-import { SigninDto } from './dtos/signin.dto';
 import { User } from './decorators/user.decorator';
 import { type RequestUser } from './interfaces/request-user.interface';
 import { Public } from './decorators/public.decorator';
