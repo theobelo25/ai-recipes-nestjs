@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -20,6 +21,7 @@ import { LocalAuthGuard } from './guards/local-auth/local-auth.guard';
 import { User } from './decorators/user.decorator';
 import { type RequestUser } from './interfaces/request-user.interface';
 import { Public } from './decorators/public.decorator';
+import { RefreshAuthGuard } from './guards/refresh-auth/refresh-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -39,13 +41,22 @@ export class AuthController {
     const { username, email, password } = signupDto;
     const createUserDto: CreateUserDto = { username, email, password };
 
-    const token = await this.authService.signup(createUserDto);
+    const { id, accessToken, refreshToken } =
+      await this.authService.signup(createUserDto);
 
-    reply.setCookie('token', token, {
+    reply.setCookie('accessToken', accessToken, {
       secure: true,
       httpOnly: true,
       sameSite: true,
     });
+
+    reply.setCookie('refreshToken', refreshToken, {
+      secure: true,
+      httpOnly: true,
+      sameSite: true,
+    });
+
+    return { userId: id };
   }
 
   @HttpCode(HttpStatus.OK)
@@ -53,15 +64,43 @@ export class AuthController {
   @Public()
   @Post('login')
   @RouteSchema({ body: loginSchema })
-  login(
+  async login(
     @User() user: RequestUser,
     @Res({ passthrough: true }) reply: FastifyReply,
   ) {
-    const token = this.authService.login(user);
-    reply.setCookie('token', token, {
+    const { id, accessToken, refreshToken } =
+      await this.authService.login(user);
+
+    reply.setCookie('accessToken', accessToken, {
       secure: true,
       httpOnly: true,
       sameSite: true,
     });
+
+    reply.setCookie('refreshToken', refreshToken, {
+      secure: true,
+      httpOnly: true,
+      sameSite: true,
+    });
+
+    return { userId: id };
+  }
+
+  @UseGuards(RefreshAuthGuard)
+  @Public()
+  @Post('refresh')
+  refreshToken(@User() user: RequestUser) {
+    console.log(user);
+    return this.authService.refreshToken(user);
+  }
+
+  @Post('signout')
+  async signout(@User() user: RequestUser) {
+    await this.authService.signout(user);
+  }
+
+  @Get()
+  testGet() {
+    return 'Working';
   }
 }

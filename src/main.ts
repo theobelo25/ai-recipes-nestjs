@@ -33,7 +33,7 @@ async function bootstrap() {
     new ValidationExceptionFilter(),
   );
 
-  app.use(helmet);
+  app.use(helmet());
 
   await app.listen(port);
   console.log(`Server running on http://localhost:${port}`);

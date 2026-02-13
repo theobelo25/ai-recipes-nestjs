@@ -13,7 +13,7 @@ export const signupSchema = {
       type: 'string',
       transform: ['trim'],
       // eslint-disable-next-line no-useless-escape
-      pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,32}$',
+      // pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,32}$',
     },
     confirmPassword: {
       type: 'string',
