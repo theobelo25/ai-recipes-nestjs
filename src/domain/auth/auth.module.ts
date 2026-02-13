@@ -12,11 +12,14 @@ import { LocalStrategy } from './strategies/local.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './guards/jwt-auth/jwt-auth.guard';
+import refreshJwtConfig from './config/refresh-jwt.config';
+import { RefreshJwtStrategy } from './strategies/refresh.strategy';
 
 @Module({
   imports: [
     JwtModule.registerAsync(jwtConfig.asProvider()),
     ConfigModule.forFeature(jwtConfig),
+    ConfigModule.forFeature(refreshJwtConfig),
     PassportModule,
   ],
   controllers: [AuthController],
@@ -26,6 +29,7 @@ import { JwtAuthGuard } from './guards/jwt-auth/jwt-auth.guard';
     UsersService,
     LocalStrategy,
     JwtStrategy,
+    RefreshJwtStrategy,
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
