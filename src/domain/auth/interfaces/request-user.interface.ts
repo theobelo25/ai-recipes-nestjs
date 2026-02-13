@@ -1,3 +1,3 @@
 export interface RequestUser {
-  readonly id: number;
+  readonly id: string;
 }

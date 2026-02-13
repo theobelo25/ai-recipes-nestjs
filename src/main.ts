@@ -8,6 +8,7 @@ import { PrismaExceptionFilter } from './common/filters/prisma-exception.filter'
 import { ValidationExceptionFilter } from './common/filters/validation-exception.filter';
 import { ConfigService } from '@nestjs/config';
 import fastifyCookie from '@fastify/cookie';
+import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -31,6 +32,8 @@ async function bootstrap() {
     new PrismaExceptionFilter(httpAdapter),
     new ValidationExceptionFilter(),
   );
+
+  app.use(helmet);
 
   await app.listen(port);
   console.log(`Server running on http://localhost:${port}`);
