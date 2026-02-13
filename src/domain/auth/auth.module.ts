@@ -14,6 +14,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './guards/jwt-auth/jwt-auth.guard';
 import refreshJwtConfig from './config/refresh-jwt.config';
 import { RefreshJwtStrategy } from './strategies/refresh.strategy';
+import { Argon2Service } from './hashing/argon2.service';
 
 @Module({
   imports: [
@@ -25,7 +26,7 @@ import { RefreshJwtStrategy } from './strategies/refresh.strategy';
   controllers: [AuthController],
   providers: [
     AuthService,
-    { provide: HashingService, useClass: BcryptService },
+    { provide: HashingService, useClass: Argon2Service },
     UsersService,
     LocalStrategy,
     JwtStrategy,
