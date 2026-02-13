@@ -1,9 +1,14 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { HashingService } from './hashing/hashing.service';
 import { UsersService } from '../users/users.service';
 import { CreateUserDto } from '../users/dtos/createUser.dto';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
+import { RequestUser } from './interfaces/request-user.interface';
 
 @Injectable()
 export class AuthService {
@@ -12,6 +17,7 @@ export class AuthService {
     private readonly hashingService: HashingService,
     private readonly jwtService: JwtService,
   ) {}
+
   async signup(createUserDto: CreateUserDto) {
     const { email, password } = createUserDto;
 
@@ -30,6 +36,30 @@ export class AuthService {
 
     const user = await this.usersService.create(userData);
 
+    const payload: JwtPayload = { sub: user.id };
+    return this.jwtService.sign(payload);
+  }
+
+  async validateLocal(email: string, password: string) {
+    const user = await this.usersService.findOneByEmail(email);
+    if (!user) throw new UnauthorizedException('Invalid credentials');
+
+    const isMatch = await this.hashingService.compare(password, user.password);
+    if (!isMatch) throw new UnauthorizedException('Invalid credentials.');
+
+    const requestUser: RequestUser = { id: user.id };
+    return requestUser;
+  }
+
+  async validateJwt({ sub }: JwtPayload) {
+    const user = await this.usersService.findOneById(sub);
+    if (!user) throw new UnauthorizedException('Invalid token.');
+
+    const requestUser: RequestUser = { id: sub };
+    return requestUser;
+  }
+
+  login(user: RequestUser) {
     const payload: JwtPayload = { sub: user.id };
     return this.jwtService.sign(payload);
   }
