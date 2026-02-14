@@ -65,7 +65,6 @@ export class AuthService {
   }
 
   async validateRefreshToken(userId: string, refreshToken: string | undefined) {
-    console.log(refreshToken);
     if (!refreshToken)
       throw new UnauthorizedException('Invalid refresh token.');
 

@@ -29,7 +29,6 @@ export class RefreshJwtStrategy extends PassportStrategy(
     >,
     private readonly authService: AuthService,
   ) {
-    console.log('here in constructor');
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         extractJwtFromCookie, // Use the custom cookie extractor first

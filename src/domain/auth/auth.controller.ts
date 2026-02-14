@@ -23,6 +23,7 @@ import { User } from './decorators/user.decorator';
 import { type RequestUser } from './interfaces/request-user.interface';
 import { Public } from './decorators/public.decorator';
 import { RefreshAuthGuard } from './guards/refresh-auth/refresh-auth.guard';
+import { access } from 'fs';
 
 @Controller('auth')
 export class AuthController {
@@ -68,11 +69,10 @@ export class AuthController {
   async login(
     @User() user: RequestUser,
     @Res({ passthrough: true }) reply: FastifyReply,
-    @Req() req: FastifyRequest,
+    // @Req() req: FastifyRequest,
   ) {
-    const refreshToken = req.cookies;
-    console.log(refreshToken);
-    const { id, accessToken } = await this.authService.login(user);
+    const { id, accessToken, refreshToken } =
+      await this.authService.login(user);
 
     // reply.setCookie('accessToken', accessToken, {
     //   secure: true,
@@ -80,11 +80,11 @@ export class AuthController {
     //   sameSite: true,
     // });
 
-    // reply.setCookie('refreshToken', refreshToken, {
-    //   secure: true,
-    //   httpOnly: true,
-    //   sameSite: 'lax',
-    // });
+    reply.setCookie('refreshToken', refreshToken, {
+      secure: true,
+      httpOnly: true,
+      sameSite: 'lax',
+    });
 
     return { userId: id, accessToken };
   }
@@ -92,10 +92,24 @@ export class AuthController {
   @UseGuards(RefreshAuthGuard)
   @Public()
   @Post('refresh')
-  refreshToken(@User() user: RequestUser, @Req() req: FastifyRequest) {
-    const refreshToken = req.cookies;
-    console.log(refreshToken);
-    return this.authService.refreshToken(user);
+  async refreshToken(
+    @User() user: RequestUser,
+    @Req() req: FastifyRequest,
+    @Res({ passthrough: true }) reply: FastifyReply,
+  ) {
+    const { id, accessToken, refreshToken } =
+      await this.authService.refreshToken(user);
+
+    reply.setCookie('refreshToken', refreshToken, {
+      secure: true,
+      httpOnly: true,
+      sameSite: 'lax',
+    });
+
+    return {
+      id,
+      accessToken,
+    };
   }
 
   @Post('signout')
