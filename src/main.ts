@@ -33,6 +33,10 @@ async function bootstrap() {
     new ValidationExceptionFilter(),
   );
 
+  app.enableCors({
+    origin: 'http://localhost:3000', // frontend origin
+    credentials: true,
+  });
   app.use(helmet());
 
   await app.listen(port);

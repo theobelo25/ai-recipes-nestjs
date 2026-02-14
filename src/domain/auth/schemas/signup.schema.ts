@@ -6,7 +6,7 @@ export const signupSchema = {
       transform: ['trim'],
       minLength: 2,
       maxLength: 50,
-      pattern: '^[a-zA-Z\\s-]+$',
+      pattern: /^[a-zA-Z\\s-]+$/.toString().slice(1, -1),
     },
     email: { type: 'string', format: 'email', transform: ['trim'] },
     password: {
@@ -28,9 +28,9 @@ export const signupSchema = {
       username:
         'Username must be between 3 and 50 characters long and only contain letters, spaces, or hypthens.',
       email: 'Invalid email format.',
-      // password:
-      //   'Password must at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character from the following !@#$%^&*()-+=.',
-      // confirmPassword: 'confirmPassword must match password exactly',
+      password:
+        'Password must at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character from the following !@#$%^&*.',
+      confirmPassword: 'confirmPassword must match password exactly',
     },
     required: {
       username: 'Username is required.',
