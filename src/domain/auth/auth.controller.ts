@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Req,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -14,7 +15,7 @@ import { signupSchema } from './schemas/signup.schema';
 import { SignupDto } from './dtos/signup.dto';
 import { ValidationService } from 'src/common/validation/validation.service';
 import { RouteSchema } from '@nestjs/platform-fastify';
-import type { FastifyReply } from 'fastify';
+import type { FastifyReply, FastifyRequest } from 'fastify';
 import { CreateUserDto } from '../users/dtos/createUser.dto';
 import { loginSchema } from './schemas/login.schema';
 import { LocalAuthGuard } from './guards/local-auth/local-auth.guard';
@@ -22,6 +23,7 @@ import { User } from './decorators/user.decorator';
 import { type RequestUser } from './interfaces/request-user.interface';
 import { Public } from './decorators/public.decorator';
 import { RefreshAuthGuard } from './guards/refresh-auth/refresh-auth.guard';
+import { access } from 'fs';
 
 @Controller('auth')
 export class AuthController {
@@ -30,7 +32,7 @@ export class AuthController {
     private readonly authService: AuthService,
   ) {}
 
-  @HttpCode(HttpStatus.OK)
+  // @HttpCode(HttpStatus.OK)
   @Public()
   @Post('signup')
   @RouteSchema({ body: signupSchema })
@@ -44,19 +46,19 @@ export class AuthController {
     const { id, accessToken, refreshToken } =
       await this.authService.signup(createUserDto);
 
-    reply.setCookie('accessToken', accessToken, {
-      secure: true,
-      httpOnly: true,
-      sameSite: true,
-    });
+    // reply.setCookie('accessToken', accessToken, {
+    //   secure: true,
+    //   httpOnly: true,
+    //   sameSite: true,
+    // });
 
     reply.setCookie('refreshToken', refreshToken, {
       secure: true,
       httpOnly: true,
-      sameSite: true,
+      sameSite: 'lax',
     });
 
-    return { userId: id };
+    return { userId: id, accessToken };
   }
 
   @HttpCode(HttpStatus.OK)
@@ -67,31 +69,47 @@ export class AuthController {
   async login(
     @User() user: RequestUser,
     @Res({ passthrough: true }) reply: FastifyReply,
+    // @Req() req: FastifyRequest,
   ) {
     const { id, accessToken, refreshToken } =
       await this.authService.login(user);
 
-    reply.setCookie('accessToken', accessToken, {
-      secure: true,
-      httpOnly: true,
-      sameSite: true,
-    });
+    // reply.setCookie('accessToken', accessToken, {
+    //   secure: true,
+    //   httpOnly: true,
+    //   sameSite: true,
+    // });
 
     reply.setCookie('refreshToken', refreshToken, {
       secure: true,
       httpOnly: true,
-      sameSite: true,
+      sameSite: 'lax',
     });
 
-    return { userId: id };
+    return { userId: id, accessToken };
   }
 
   @UseGuards(RefreshAuthGuard)
   @Public()
   @Post('refresh')
-  refreshToken(@User() user: RequestUser) {
-    console.log(user);
-    return this.authService.refreshToken(user);
+  async refreshToken(
+    @User() user: RequestUser,
+    @Req() req: FastifyRequest,
+    @Res({ passthrough: true }) reply: FastifyReply,
+  ) {
+    const { id, accessToken, refreshToken } =
+      await this.authService.refreshToken(user);
+
+    reply.setCookie('refreshToken', refreshToken, {
+      secure: true,
+      httpOnly: true,
+      sameSite: 'lax',
+    });
+
+    return {
+      id,
+      accessToken,
+    };
   }
 
   @Post('signout')
