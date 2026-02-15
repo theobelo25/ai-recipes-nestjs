@@ -23,7 +23,6 @@ import { User } from './decorators/user.decorator';
 import { type RequestUser } from './interfaces/request-user.interface';
 import { Public } from './decorators/public.decorator';
 import { RefreshAuthGuard } from './guards/refresh-auth/refresh-auth.guard';
-import { access } from 'fs';
 
 @Controller('auth')
 export class AuthController {
@@ -46,12 +45,6 @@ export class AuthController {
     const { id, accessToken, refreshToken } =
       await this.authService.signup(createUserDto);
 
-    // reply.setCookie('accessToken', accessToken, {
-    //   secure: true,
-    //   httpOnly: true,
-    //   sameSite: true,
-    // });
-
     reply.setCookie('refreshToken', refreshToken, {
       secure: true,
       httpOnly: true,
@@ -64,21 +57,14 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(LocalAuthGuard)
   @Public()
-  @Post('login')
+  @Post('signin')
   @RouteSchema({ body: loginSchema })
   async login(
     @User() user: RequestUser,
     @Res({ passthrough: true }) reply: FastifyReply,
-    // @Req() req: FastifyRequest,
   ) {
     const { id, accessToken, refreshToken } =
-      await this.authService.login(user);
-
-    // reply.setCookie('accessToken', accessToken, {
-    //   secure: true,
-    //   httpOnly: true,
-    //   sameSite: true,
-    // });
+      await this.authService.signin(user);
 
     reply.setCookie('refreshToken', refreshToken, {
       secure: true,
@@ -97,8 +83,10 @@ export class AuthController {
     @Req() req: FastifyRequest,
     @Res({ passthrough: true }) reply: FastifyReply,
   ) {
+    const incomingRefreshToken = req.cookies.refreshToken;
+
     const { id, accessToken, refreshToken } =
-      await this.authService.refreshToken(user);
+      await this.authService.refreshToken(user, incomingRefreshToken);
 
     reply.setCookie('refreshToken', refreshToken, {
       secure: true,
@@ -112,9 +100,21 @@ export class AuthController {
     };
   }
 
+  @UseGuards(RefreshAuthGuard)
+  @Public()
   @Post('signout')
-  async signout(@User() user: RequestUser) {
-    await this.authService.signout(user);
+  async signout(
+    @Req() request: FastifyRequest,
+    @Res({ passthrough: true }) reply: FastifyReply,
+  ) {
+    const { refreshToken } = request.cookies;
+
+    reply.clearCookie('refreshToken', {
+      secure: true,
+      httpOnly: true,
+      sameSite: 'lax',
+    });
+    await this.authService.signout(refreshToken);
   }
 
   @Get()

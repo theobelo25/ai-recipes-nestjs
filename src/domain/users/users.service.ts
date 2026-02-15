@@ -16,17 +16,10 @@ export class UsersService {
   }
 
   async findOneById(id: string) {
-    const user = await this.prismaService.user.findUnique({ where: { id } });
-    return user;
-  }
-
-  async updateHashedRefreshToken(
-    id: string,
-    hashedRefreshToken: string | null,
-  ) {
-    return await this.prismaService.user.update({
+    const user = await this.prismaService.user.findUnique({
       where: { id },
-      data: { hashedRefreshToken },
+      include: { refreshTokens: true },
     });
+    return user;
   }
 }
