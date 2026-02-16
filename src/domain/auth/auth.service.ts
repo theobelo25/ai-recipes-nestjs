@@ -12,7 +12,7 @@ import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { RequestUser } from './interfaces/request-user.interface';
 import refreshJwtConfig from './config/refresh-jwt.config';
-import { type ConfigType } from '@nestjs/config';
+import { ConfigService, type ConfigType } from '@nestjs/config';
 import { PrismaService } from 'src/prisma/prisma.service';
 import ms from 'ms';
 import { createHmac } from 'crypto';
@@ -20,6 +20,7 @@ import { createHmac } from 'crypto';
 @Injectable()
 export class AuthService {
   constructor(
+    private readonly configService: ConfigService,
     private readonly prismaService: PrismaService,
     private readonly usersService: UsersService,
     private readonly hashingService: HashingService,
@@ -165,7 +166,10 @@ export class AuthService {
   }
 
   private getTokenPrefix(token: string) {
-    return createHmac('sha256', process.env.REFRESH_PREFIX_SECRET!)
+    return createHmac(
+      'sha256',
+      this.configService.get<string>('REFRESH_PREFIX_SECRET')!,
+    )
       .update(token)
       .digest('hex')
       .slice(0, 8);

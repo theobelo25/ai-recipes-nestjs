@@ -38,6 +38,8 @@ export class RefreshJwtStrategy extends PassportStrategy(
       secretOrKey: refreshJwtConfiguration.secret,
       ignoreExpiration: false,
       passReqToCallback: true,
+      issuer: refreshJwtConfiguration.issuer,
+      audience: refreshJwtConfiguration.audience,
     });
   }
 

@@ -10,7 +10,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-
 import { signupSchema } from './schemas/signup.schema';
 import { SignupDto } from './dtos/signup.dto';
 import { ValidationService } from 'src/common/validation/validation.service';
@@ -23,15 +22,25 @@ import { User } from './decorators/user.decorator';
 import { type RequestUser } from './interfaces/request-user.interface';
 import { Public } from './decorators/public.decorator';
 import { RefreshAuthGuard } from './guards/refresh-auth/refresh-auth.guard';
+import { buildRefreshCookieOptions } from './config/refreshCookieOptions.config';
+import { ConfigService } from '@nestjs/config';
+import { CookieSerializeOptions } from '@fastify/cookie';
+import { OriginGuard } from './guards/origin/origin.guard';
 
 @Controller('auth')
 export class AuthController {
   constructor(
+    private readonly configService: ConfigService,
     private readonly validationService: ValidationService,
     private readonly authService: AuthService,
-  ) {}
+  ) {
+    this.isProduction = this.configService.get('NODE_ENV') === 'production';
+    this.cookieOptions = buildRefreshCookieOptions(this.isProduction);
+  }
+  private isProduction: boolean;
+  private cookieOptions: CookieSerializeOptions;
 
-  // @HttpCode(HttpStatus.OK)
+  @HttpCode(HttpStatus.OK)
   @Public()
   @Post('signup')
   @RouteSchema({ body: signupSchema })
@@ -45,11 +54,7 @@ export class AuthController {
     const { id, accessToken, refreshToken } =
       await this.authService.signup(createUserDto);
 
-    reply.setCookie('refreshToken', refreshToken, {
-      secure: true,
-      httpOnly: true,
-      sameSite: 'lax',
-    });
+    reply.setCookie('refreshToken', refreshToken, this.cookieOptions);
 
     return { userId: id, accessToken };
   }
@@ -66,16 +71,12 @@ export class AuthController {
     const { id, accessToken, refreshToken } =
       await this.authService.signin(user);
 
-    reply.setCookie('refreshToken', refreshToken, {
-      secure: true,
-      httpOnly: true,
-      sameSite: 'lax',
-    });
+    reply.setCookie('refreshToken', refreshToken, this.cookieOptions);
 
     return { userId: id, accessToken };
   }
 
-  @UseGuards(RefreshAuthGuard)
+  @UseGuards(RefreshAuthGuard, OriginGuard)
   @Public()
   @Post('refresh')
   async refreshToken(
@@ -88,11 +89,7 @@ export class AuthController {
     const { id, accessToken, refreshToken } =
       await this.authService.refreshToken(user, incomingRefreshToken);
 
-    reply.setCookie('refreshToken', refreshToken, {
-      secure: true,
-      httpOnly: true,
-      sameSite: 'lax',
-    });
+    reply.setCookie('refreshToken', refreshToken, this.cookieOptions);
 
     return {
       id,
@@ -100,7 +97,7 @@ export class AuthController {
     };
   }
 
-  @UseGuards(RefreshAuthGuard)
+  @UseGuards(RefreshAuthGuard, OriginGuard)
   @Public()
   @Post('signout')
   async signout(
@@ -109,11 +106,7 @@ export class AuthController {
   ) {
     const { refreshToken } = request.cookies;
 
-    reply.clearCookie('refreshToken', {
-      secure: true,
-      httpOnly: true,
-      sameSite: 'lax',
-    });
+    reply.clearCookie('refreshToken', { ...this.cookieOptions, maxAge: 0 });
     await this.authService.signout(refreshToken);
   }
 

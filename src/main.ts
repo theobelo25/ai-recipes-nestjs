@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import {
@@ -8,7 +9,8 @@ import { PrismaExceptionFilter } from './common/filters/prisma-exception.filter'
 import { ValidationExceptionFilter } from './common/filters/validation-exception.filter';
 import { ConfigService } from '@nestjs/config';
 import fastifyCookie from '@fastify/cookie';
-import helmet from 'helmet';
+import helmet from '@fastify/helmet';
+import { helmetConfig, corsConfig, jwtConfig } from './config/';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -19,12 +21,9 @@ async function bootstrap() {
   // Get Config Variable
   const configService = app.get(ConfigService);
   const port = configService.get<number>('APP_PORT')!;
-  const jwtSecret = configService.get<string>('JWT_SECRET');
 
   // Register cookie for jwt
-  await app.register(fastifyCookie, {
-    secret: jwtSecret, // A secret is recommended for signed cookies
-  });
+  await app.register(fastifyCookie, jwtConfig);
 
   // Apply Global Filters
   const httpAdapter = app.get(HttpAdapterHost);
@@ -33,11 +32,8 @@ async function bootstrap() {
     new ValidationExceptionFilter(),
   );
 
-  app.enableCors({
-    origin: 'http://localhost:3000', // frontend origin
-    credentials: true,
-  });
-  app.use(helmet());
+  app.enableCors(corsConfig);
+  await app.register(helmet, helmetConfig);
 
   await app.listen(port);
   console.log(`Server running on http://localhost:${port}`);
