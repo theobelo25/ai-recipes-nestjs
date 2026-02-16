@@ -26,6 +26,7 @@ import { buildRefreshCookieOptions } from './config/refreshCookieOptions.config'
 import { ConfigService } from '@nestjs/config';
 import { CookieSerializeOptions } from '@fastify/cookie';
 import { OriginGuard } from './guards/origin/origin.guard';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('auth')
 export class AuthController {
@@ -44,6 +45,7 @@ export class AuthController {
   @Public()
   @Post('signup')
   @RouteSchema({ body: signupSchema })
+  @Throttle({ default: { ttl: 60_000, limit: 5 } }) // 5/min
   async signup(
     @Body() signupDto: SignupDto,
     @Res({ passthrough: true }) reply: FastifyReply,
@@ -64,6 +66,7 @@ export class AuthController {
   @Public()
   @Post('signin')
   @RouteSchema({ body: loginSchema })
+  @Throttle({ default: { ttl: 60_000, limit: 10 } }) // 10/min
   async login(
     @User() user: RequestUser,
     @Res({ passthrough: true }) reply: FastifyReply,
@@ -79,6 +82,7 @@ export class AuthController {
   @UseGuards(RefreshAuthGuard, OriginGuard)
   @Public()
   @Post('refresh')
+  @Throttle({ default: { ttl: 60_000, limit: 30 } }) // 30/min
   async refreshToken(
     @User() user: RequestUser,
     @Req() req: FastifyRequest,
@@ -100,6 +104,7 @@ export class AuthController {
   @UseGuards(RefreshAuthGuard, OriginGuard)
   @Public()
   @Post('signout')
+  @Throttle({ default: { ttl: 60_000, limit: 30 } }) // 30/min
   async signout(
     @Req() request: FastifyRequest,
     @Res({ passthrough: true }) reply: FastifyReply,

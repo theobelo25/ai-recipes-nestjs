@@ -1,7 +1,7 @@
 import { FastifyCorsOptions } from '@fastify/cors';
 import { env } from 'src/env/env';
 
-const allowedOrigins = (env.FRONTEND_ORIGIN ?? '')
+const allowedOrigins = (env.CORS_ORIGINS ?? env.FRONTEND_ORIGIN ?? '')
   .split(',')
   .map((o) => o.trim())
   .filter(Boolean);
