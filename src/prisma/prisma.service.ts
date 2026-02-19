@@ -16,7 +16,7 @@ export class PrismaService
     const adapter = new PrismaPg({
       connectionString: configService.get<string>('DATABASE_URL'),
     });
-    super({ adapter });
+    super({ adapter, omit: { user: { password: true } } });
   }
 
   async onModuleInit() {

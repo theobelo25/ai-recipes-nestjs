@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -10,38 +9,29 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { signupSchema } from './schemas/signup.schema';
-import { SignupDto } from './dtos/signup.dto';
-import { ValidationService } from 'src/common/validation/validation.service';
+import { signupSchema, type SignupDto } from './types/signup.schema';
 import { RouteSchema } from '@nestjs/platform-fastify';
-import type { FastifyReply, FastifyRequest } from 'fastify';
-import { CreateUserDto } from '../users/dtos/createUser.dto';
-import { loginSchema } from './schemas/login.schema';
+import { type FastifyReply, type FastifyRequest } from 'fastify';
+import { signinSchema } from './types/signin.schema';
 import { LocalAuthGuard } from './guards/local-auth/local-auth.guard';
 import { User } from './decorators/user.decorator';
 import { type RequestUser } from './interfaces/request-user.interface';
 import { Public } from './decorators/public.decorator';
-import { RefreshAuthGuard } from './guards/refresh-auth/refresh-auth.guard';
-import { buildRefreshCookieOptions } from './config/refreshCookieOptions.config';
-import { ConfigService } from '@nestjs/config';
-import { CookieSerializeOptions } from '@fastify/cookie';
 import { OriginGuard } from './guards/origin/origin.guard';
 import { Throttle } from '@nestjs/throttler';
+import { RefreshToken } from './decorators/refresh-token.decorator';
+import { RefreshRotateGuard } from './guards/refresh-rotate/refresh-rotate.guard';
+import { AuthCookiesService } from './cookies/auth-cookies.service';
 
 @Controller('auth')
 export class AuthController {
   constructor(
-    private readonly configService: ConfigService,
-    private readonly validationService: ValidationService,
     private readonly authService: AuthService,
-  ) {
-    this.isProduction = this.configService.get('NODE_ENV') === 'production';
-    this.cookieOptions = buildRefreshCookieOptions(this.isProduction);
-  }
-  private isProduction: boolean;
-  private cookieOptions: CookieSerializeOptions;
+    private readonly cookiesService: AuthCookiesService,
+  ) {}
 
   @HttpCode(HttpStatus.OK)
+  @UseGuards(OriginGuard)
   @Public()
   @Post('signup')
   @RouteSchema({ body: signupSchema })
@@ -50,73 +40,60 @@ export class AuthController {
     @Body() signupDto: SignupDto,
     @Res({ passthrough: true }) reply: FastifyReply,
   ) {
-    const { username, email, password } = signupDto;
-    const createUserDto: CreateUserDto = { username, email, password };
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { confirmPassword, ...createUserDto } = signupDto;
 
-    const { id, accessToken, refreshToken } =
-      await this.authService.signup(createUserDto);
+    const user = await this.authService.signup(createUserDto);
+    const accessToken = await this.authService.signAccessToken(user.id);
+    const rawRefresh = await this.authService.issueInitialRefreshToken(user.id);
 
-    reply.setCookie('refreshToken', refreshToken, this.cookieOptions);
+    this.cookiesService.setRefresh(reply, rawRefresh);
 
-    return { userId: id, accessToken };
+    return { accessToken };
   }
 
   @HttpCode(HttpStatus.OK)
-  @UseGuards(LocalAuthGuard)
+  @UseGuards(OriginGuard, LocalAuthGuard)
   @Public()
   @Post('signin')
-  @RouteSchema({ body: loginSchema })
+  @RouteSchema({ body: signinSchema })
   @Throttle({ default: { ttl: 60_000, limit: 10 } }) // 10/min
   async login(
     @User() user: RequestUser,
     @Res({ passthrough: true }) reply: FastifyReply,
   ) {
-    const { id, accessToken, refreshToken } =
-      await this.authService.signin(user);
+    const accessToken = await this.authService.signAccessToken(user.id);
+    const rawRefresh = await this.authService.issueInitialRefreshToken(user.id);
 
-    reply.setCookie('refreshToken', refreshToken, this.cookieOptions);
+    this.cookiesService.setRefresh(reply, rawRefresh);
 
-    return { userId: id, accessToken };
+    return { accessToken };
   }
 
-  @UseGuards(RefreshAuthGuard, OriginGuard)
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(OriginGuard, RefreshRotateGuard)
   @Public()
   @Post('refresh')
   @Throttle({ default: { ttl: 60_000, limit: 30 } }) // 30/min
-  async refreshToken(
-    @User() user: RequestUser,
-    @Req() req: FastifyRequest,
-    @Res({ passthrough: true }) reply: FastifyReply,
-  ) {
-    const incomingRefreshToken = req.cookies.refreshToken;
-
-    const { id, accessToken, refreshToken } =
-      await this.authService.refreshToken(user, incomingRefreshToken);
-
-    reply.setCookie('refreshToken', refreshToken, this.cookieOptions);
-
-    return {
-      id,
-      accessToken,
-    };
+  async refresh(@Req() req: FastifyRequest) {
+    const userId = req.auth!.userId;
+    const accessToken = await this.authService.signAccessToken(userId); // or your existing method
+    return { accessToken };
   }
 
-  @UseGuards(RefreshAuthGuard, OriginGuard)
-  @Public()
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(OriginGuard)
   @Post('signout')
   @Throttle({ default: { ttl: 60_000, limit: 30 } }) // 30/min
   async signout(
-    @Req() request: FastifyRequest,
+    @RefreshToken() incomingRefreshToken: string | undefined,
     @Res({ passthrough: true }) reply: FastifyReply,
   ) {
-    const { refreshToken } = request.cookies;
+    if (incomingRefreshToken)
+      await this.authService.revokeRefreshToken(incomingRefreshToken);
 
-    reply.clearCookie('refreshToken', { ...this.cookieOptions, maxAge: 0 });
-    await this.authService.signout(refreshToken);
-  }
+    this.cookiesService.clearRefresh(reply);
 
-  @Get()
-  testGet() {
-    return 'Working';
+    return { ok: true };
   }
 }

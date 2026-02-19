@@ -17,7 +17,5 @@ export class ValidationModule {
       .setValidatorCompiler(({ schema }) => {
         return this.validationService.getInstance().compile(schema);
       });
-
-    console.log('AJV validation configured globally');
   }
 }

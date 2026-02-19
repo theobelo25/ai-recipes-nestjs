@@ -8,5 +8,9 @@ interface UserPayload {
 declare module 'fastify' {
   interface FastifyRequest {
     user: UserPayload;
+    auth?: {
+      userId: string;
+      refreshTokenId?: string;
+    };
   }
 }

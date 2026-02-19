@@ -11,8 +11,6 @@ export class ValidationExceptionFilter implements ExceptionFilter {
     const reply = ctx.getResponse<FastifyReply>();
     const request = ctx.getRequest<FastifyRequest>();
 
-    console.log(exception.validation);
-
     const formattedErrors = exception.validation.map((err) => ({
       field: err.instancePath?.replace('/', '') || err.params?.missingPropery,
       message: err.message,

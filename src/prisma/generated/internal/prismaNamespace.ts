@@ -610,7 +610,13 @@ export const RefreshTokenScalarFieldEnum = {
   tokenPrefix: 'tokenPrefix',
   userId: 'userId',
   createdAt: 'createdAt',
-  expiresAt: 'expiresAt'
+  expiresAt: 'expiresAt',
+  lastUsedAt: 'lastUsedAt',
+  revokedAt: 'revokedAt',
+  replacedById: 'replacedById',
+  deviceLabel: 'deviceLabel',
+  userAgentHash: 'userAgentHash',
+  ipFirstSeen: 'ipFirstSeen'
 } as const
 
 export type RefreshTokenScalarFieldEnum = (typeof RefreshTokenScalarFieldEnum)[keyof typeof RefreshTokenScalarFieldEnum]
@@ -630,6 +636,14 @@ export const QueryMode = {
 } as const
 
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
 
 

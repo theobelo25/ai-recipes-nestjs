@@ -30,13 +30,30 @@ model User {
 model RefreshToken {
   id String @id @default(uuid()) @db.Uuid
 
+  // store only a hash of the raw refresh token
   tokenHash   String @unique
   tokenPrefix String
-  userId      String @db.Uuid
-  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  userId String @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   expiresAt DateTime
 
+  // NEW: lifecycle
+  lastUsedAt   DateTime?
+  revokedAt    DateTime?
+  replacedById String?       @unique @db.Uuid
+  replacedBy   RefreshToken? @relation("RefreshTokenRotation", fields: [replacedById], references: [id])
+  replaces     RefreshToken? @relation("RefreshTokenRotation")
+
+  // NEW: optional device metadata (helps with multi-device management UI)
+  deviceLabel   String?
+  userAgentHash String?
+  ipFirstSeen   String?
+
+  @@index([userId])
   @@index([tokenPrefix])
+  @@index([expiresAt])
+  @@index([revokedAt])
 }

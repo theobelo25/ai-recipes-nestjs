@@ -16,9 +16,8 @@ export const envSchema = z.object({
 
   JWT_SECRET: z.string().min(1),
   JWT_TTL: z.string().min(1),
-  REFRESH_JWT_SECRET: z.string().min(1),
-  REFRESH_JWT_TTL: z.string().min(1),
-  REFRESH_PREFIX_SECRET: z.string().min(1),
+  REFRESH_TOKEN_TTL: z.string().min(1),
+  REFRESH_PREFIX_SECRET: z.string().min(32),
   JWT_ISSUER: z.string().min(1),
   JWT_AUDIENCE: z.string().min(1),
 });
