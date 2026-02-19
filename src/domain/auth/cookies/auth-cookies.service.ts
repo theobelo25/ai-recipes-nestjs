@@ -36,7 +36,7 @@ export class AuthCookiesService {
   clearRefresh(reply: FastifyReply) {
     clearRefreshCookie(reply, {
       isProd: this.isProd,
-      maxAgeSeconds: this.refreshMaxAgeSeconds,
+      maxAgeSeconds: 0,
     });
   }
 }

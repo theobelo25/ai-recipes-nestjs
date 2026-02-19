@@ -17,7 +17,10 @@ export class UsersService {
   }
 
   async findOneByEmail(email: string) {
-    const user = await this.prismaService.user.findUnique({ where: { email } });
+    const user = await this.prismaService.user.findUnique({
+      where: { email },
+      select: { id: true, password: true },
+    });
     return user;
   }
 
@@ -50,7 +53,6 @@ export class UsersService {
       oldPassword,
       user.password,
     );
-    console.log(passwordMatches);
     if (!passwordMatches)
       throw new UnauthorizedException('User not authorized.');
 

@@ -83,6 +83,7 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @UseGuards(OriginGuard)
+  @Public()
   @Post('signout')
   @Throttle({ default: { ttl: 60_000, limit: 30 } }) // 30/min
   async signout(

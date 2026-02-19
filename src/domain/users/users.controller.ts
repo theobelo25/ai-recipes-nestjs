@@ -59,10 +59,6 @@ export class UsersController {
   ) {
     const { refreshToken } = request.cookies;
     const user = await this.usersService.changePassword(id, changePasswordDto);
-    console.log(user);
-
-    console.log(refreshToken);
-
     return user;
   }
 }
