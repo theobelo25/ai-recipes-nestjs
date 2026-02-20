@@ -4,6 +4,7 @@ import { CreateUserDto } from './dtos/createUser.dto';
 import { UpdateUserDto } from './dtos/updateUser.dto';
 import { ChangePasswordDto } from './dtos/changePassword.dto';
 import { HashingService } from '../auth/hashing/hashing.service';
+import { SAFE_USER_SELECT } from './types/users.constants';
 
 @Injectable()
 export class UsersService {
@@ -16,6 +17,19 @@ export class UsersService {
     return await this.prismaService.user.create({ data: { ...createUserDto } });
   }
 
+  /**
+   * Public "me" profile (safe fields only).
+   */
+  async getMe(id: string) {
+    return await this.prismaService.user.findUniqueOrThrow({
+      where: { id },
+      select: SAFE_USER_SELECT,
+    });
+  }
+
+  /**
+   * Internal method (can include sensitive relations).
+   */
   async findOneByEmail(email: string) {
     const user = await this.prismaService.user.findUnique({
       where: { email },
@@ -24,6 +38,9 @@ export class UsersService {
     return user;
   }
 
+  /**
+   * Internal method (can include sensitive relations).
+   */
   async findOneById(id: string) {
     const user = await this.prismaService.user.findUnique({
       where: { id },
@@ -36,6 +53,7 @@ export class UsersService {
     const updatedUser = await this.prismaService.user.update({
       where: { id },
       data: { username },
+      select: SAFE_USER_SELECT,
     });
     return updatedUser;
   }
@@ -61,6 +79,7 @@ export class UsersService {
     const updatedUser = await this.prismaService.user.update({
       where: { id },
       data: { password: newHashedPassword },
+      select: SAFE_USER_SELECT,
     });
 
     return updatedUser;
