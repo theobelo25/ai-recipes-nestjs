@@ -14,14 +14,17 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto) {
-    return await this.prismaService.user.create({ data: { ...createUserDto } });
+    return await this.prismaService.user.create({
+      data: { ...createUserDto },
+      select: SAFE_USER_SELECT,
+    });
   }
 
   /**
-   * Public "me" profile (safe fields only).
+   * Public user profile (safe fields only).
    */
-  async getMe(id: string) {
-    return await this.prismaService.user.findUniqueOrThrow({
+  async getPublicUserById(id: string) {
+    return await this.prismaService.user.findUnique({
       where: { id },
       select: SAFE_USER_SELECT,
     });
@@ -35,6 +38,7 @@ export class UsersService {
       where: { email },
       select: { id: true, password: true },
     });
+
     return user;
   }
 
@@ -46,6 +50,7 @@ export class UsersService {
       where: { id },
       include: { refreshTokens: true },
     });
+
     return user;
   }
 
@@ -55,6 +60,7 @@ export class UsersService {
       data: { username },
       select: SAFE_USER_SELECT,
     });
+
     return updatedUser;
   }
 

@@ -22,12 +22,14 @@ import { Throttle } from '@nestjs/throttler';
 import { RefreshToken } from './decorators/refresh-token.decorator';
 import { RefreshRotateGuard } from './guards/refresh-rotate/refresh-rotate.guard';
 import { AuthCookiesService } from './cookies/auth-cookies.service';
+import { UsersService } from '../users/users.service';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly cookiesService: AuthCookiesService,
+    private readonly userService: UsersService,
   ) {}
 
   @HttpCode(HttpStatus.OK)
@@ -49,7 +51,7 @@ export class AuthController {
 
     this.cookiesService.setRefresh(reply, rawRefresh);
 
-    return { accessToken };
+    return { accessToken, user };
   }
 
   @HttpCode(HttpStatus.OK)
@@ -64,10 +66,11 @@ export class AuthController {
   ) {
     const accessToken = await this.authService.signAccessToken(user.id);
     const rawRefresh = await this.authService.issueInitialRefreshToken(user.id);
+    const dbUser = await this.userService.getPublicUserById(user.id);
 
     this.cookiesService.setRefresh(reply, rawRefresh);
 
-    return { accessToken };
+    return { accessToken, user: dbUser };
   }
 
   @HttpCode(HttpStatus.OK)
@@ -78,7 +81,8 @@ export class AuthController {
   async refresh(@Req() req: FastifyRequest) {
     const userId = req.auth!.userId;
     const accessToken = await this.authService.signAccessToken(userId); // or your existing method
-    return { accessToken };
+    const user = await this.userService.getPublicUserById(userId);
+    return { accessToken, user };
   }
 
   @HttpCode(HttpStatus.OK)
