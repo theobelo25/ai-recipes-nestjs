@@ -6,7 +6,7 @@ export const signupSchema = Type.Object(
       transform: ['trim'],
       minLength: 3,
       maxLength: 50,
-      pattern: '^[a-zA-Z\\s-]+$',
+      pattern: '^[a-zA-Z\\s]*$',
     }),
     email: Type.String({
       transform: ['trim'],

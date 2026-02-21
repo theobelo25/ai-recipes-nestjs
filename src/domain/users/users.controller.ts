@@ -16,13 +16,13 @@ import { ChangePasswordDto } from './dtos/changePassword.dto';
 import { AuthService } from '../auth/auth.service';
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
-import { ConfigService } from '@nestjs/config';
 import { CookieSerializeOptions } from '@fastify/cookie';
+import { AuthCookiesService } from '../auth/cookies/auth-cookies.service';
 
 @Controller('users')
 export class UsersController {
   constructor(
-    private readonly configService: ConfigService,
+    private readonly cookiesService: AuthCookiesService,
     private readonly usersService: UsersService,
     private readonly authService: AuthService,
   ) {
@@ -54,11 +54,10 @@ export class UsersController {
   async changePassword(
     @User() { id }: RequestUser,
     @Body() changePasswordDto: ChangePasswordDto,
-    @Req() request: FastifyRequest,
     @Res({ passthrough: true }) reply: FastifyReply,
   ) {
-    const { refreshToken } = request.cookies;
     const user = await this.usersService.changePassword(id, changePasswordDto);
+    this.cookiesService.clearRefresh(reply);
     return user;
   }
 }

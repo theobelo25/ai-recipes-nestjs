@@ -71,7 +71,7 @@ export class UsersService {
       where: { id },
       select: { password: true },
     });
-    if (!user) throw new UnauthorizedException('User not authorized.');
+    if (!user) throw new UnauthorizedException('User not found.');
 
     const passwordMatches = await this.hashingService.compare(
       oldPassword,
@@ -82,10 +82,19 @@ export class UsersService {
 
     const newHashedPassword = await this.hashingService.hash(newPassword);
 
-    const updatedUser = await this.prismaService.user.update({
-      where: { id },
-      data: { password: newHashedPassword },
-      select: SAFE_USER_SELECT,
+    let updatedUser;
+    await this.prismaService.$transaction(async (tx) => {
+      updatedUser = await tx.user.update({
+        where: { id },
+        data: { password: newHashedPassword },
+        select: SAFE_USER_SELECT,
+      });
+
+      // revoke all refresh tokens for this user (log out everywhere)
+      await tx.refreshToken.updateMany({
+        where: { userId: id, revokedAt: null },
+        data: { revokedAt: new Date() },
+      });
     });
 
     return updatedUser;
