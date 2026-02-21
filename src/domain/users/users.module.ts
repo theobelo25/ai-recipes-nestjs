@@ -8,6 +8,7 @@ import { AuthService } from '../auth/auth.service';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import refreshJwtConfig from '../auth/config/refresh-token.config';
+import { AuthCookiesService } from '../auth/cookies/auth-cookies.service';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import refreshJwtConfig from '../auth/config/refresh-token.config';
     UsersService,
     { provide: HashingService, useClass: Argon2Service },
     AuthService,
+    AuthCookiesService,
   ],
   exports: [UsersService],
 })

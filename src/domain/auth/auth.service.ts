@@ -49,7 +49,6 @@ export class AuthService {
 
   async signup(createUserDto: CreateUserDto) {
     const { email, password } = createUserDto;
-
     const existingUser = await this.usersService.findOneByEmail(email);
     if (existingUser)
       throw new ConflictException(
@@ -143,8 +142,8 @@ export class AuthService {
         replacedById: true,
         createdAt: true,
       },
-      orderBy: { createdAt: 'desc' }, // most recent first helps rotation chains
-      take: 25, // safety cap
+      orderBy: { createdAt: 'desc' },
+      take: 25,
     });
 
     for (const c of candidates) {
