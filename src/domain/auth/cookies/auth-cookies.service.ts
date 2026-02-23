@@ -1,15 +1,17 @@
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Inject, Injectable } from '@nestjs/common';
+import { ConfigService, type ConfigType } from '@nestjs/config';
 import type { FastifyReply } from 'fastify';
+import ms from 'ms';
 
+import refreshTokenConfig from '../config/refresh-token.config.js';
 import { setRefreshCookie, clearRefreshCookie } from './refresh-cookie.js';
-import { AuthService } from '../auth.service.js';
 
 @Injectable()
 export class AuthCookiesService {
   constructor(
     private readonly configService: ConfigService,
-    private readonly authService: AuthService,
+    @Inject(refreshTokenConfig.KEY)
+    private readonly refreshConfig: ConfigType<typeof refreshTokenConfig>,
   ) {}
 
   private get isProd(): boolean {
@@ -17,7 +19,7 @@ export class AuthCookiesService {
   }
 
   private get refreshMaxAgeSeconds(): number {
-    const seconds = this.authService.refreshCookieMaxAge;
+    const seconds = ms(this.refreshConfig.ttl);
     if (!Number.isFinite(seconds) || seconds <= 0) {
       throw new Error(
         `Invalid refresh cookie maxAgeSeconds: ${String(seconds)}`,

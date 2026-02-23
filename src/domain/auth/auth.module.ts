@@ -15,6 +15,8 @@ import { RefreshRotateGuard } from './guards/refresh-rotate/refresh-rotate.guard
 import { UsersModule } from '../users/users.module';
 import refreshTokenConfig from './config/refresh-token.config';
 import { AuthCookiesService } from './cookies/auth-cookies.service';
+import { RefreshTokenService } from './refreshToken/refresh-tokens.service';
+import { AuthFlowService } from './authFlow/auth-flow.service';
 
 @Module({
   imports: [
@@ -31,7 +33,9 @@ import { AuthCookiesService } from './cookies/auth-cookies.service';
     LocalStrategy,
     JwtStrategy,
     RefreshRotateGuard,
+    AuthFlowService,
     AuthCookiesService,
+    RefreshTokenService,
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,

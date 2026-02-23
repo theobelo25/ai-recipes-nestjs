@@ -8,7 +8,6 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { AuthService } from './auth.service';
 import { signupSchema, type SignupDto } from './types/signup.schema';
 import { RouteSchema } from '@nestjs/platform-fastify';
 import { type FastifyReply, type FastifyRequest } from 'fastify';
@@ -21,16 +20,11 @@ import { OriginGuard } from './guards/origin/origin.guard';
 import { Throttle } from '@nestjs/throttler';
 import { RefreshToken } from './decorators/refresh-token.decorator';
 import { RefreshRotateGuard } from './guards/refresh-rotate/refresh-rotate.guard';
-import { AuthCookiesService } from './cookies/auth-cookies.service';
-import { UsersService } from '../users/users.service';
+import { AuthFlowService } from './authFlow/auth-flow.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-    private readonly cookiesService: AuthCookiesService,
-    private readonly userService: UsersService,
-  ) {}
+  constructor(private readonly authFlowService: AuthFlowService) {}
 
   @HttpCode(HttpStatus.OK)
   @UseGuards(OriginGuard)
@@ -45,13 +39,10 @@ export class AuthController {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { confirmPassword, ...createUserDto } = signupDto;
 
-    const user = await this.authService.signup(createUserDto);
-    const accessToken = await this.authService.signAccessToken(user.id);
-    const rawRefresh = await this.authService.issueInitialRefreshToken(user.id);
-
-    this.cookiesService.setRefresh(reply, rawRefresh);
-
-    return { accessToken, user };
+    return await this.authFlowService.signUpAndIssueTokens(
+      createUserDto,
+      reply,
+    );
   }
 
   @HttpCode(HttpStatus.OK)
@@ -61,16 +52,10 @@ export class AuthController {
   @RouteSchema({ body: signinSchema })
   @Throttle({ default: { ttl: 60_000, limit: 10 } }) // 10/min
   async login(
-    @User() user: RequestUser,
+    @User() { id }: RequestUser,
     @Res({ passthrough: true }) reply: FastifyReply,
   ) {
-    const accessToken = await this.authService.signAccessToken(user.id);
-    const rawRefresh = await this.authService.issueInitialRefreshToken(user.id);
-    const dbUser = await this.userService.getPublicUserById(user.id);
-
-    this.cookiesService.setRefresh(reply, rawRefresh);
-
-    return { accessToken, user: dbUser };
+    return await this.authFlowService.signInAndIssueTokens(id, reply);
   }
 
   @HttpCode(HttpStatus.OK)
@@ -80,9 +65,7 @@ export class AuthController {
   @Throttle({ default: { ttl: 60_000, limit: 30 } }) // 30/min
   async refresh(@Req() req: FastifyRequest) {
     const userId = req.auth!.userId;
-    const accessToken = await this.authService.signAccessToken(userId); // or your existing method
-    const user = await this.userService.getPublicUserById(userId);
-    return { accessToken, user };
+    return await this.authFlowService.updateAccessTokenOnRefresh(userId);
   }
 
   @HttpCode(HttpStatus.OK)
@@ -94,11 +77,9 @@ export class AuthController {
     @RefreshToken() incomingRefreshToken: string | undefined,
     @Res({ passthrough: true }) reply: FastifyReply,
   ) {
-    if (incomingRefreshToken)
-      await this.authService.revokeRefreshToken(incomingRefreshToken);
-
-    this.cookiesService.clearRefresh(reply);
-
-    return { ok: true };
+    return this.authFlowService.signOutAndRevokeToken(
+      incomingRefreshToken,
+      reply,
+    );
   }
 }

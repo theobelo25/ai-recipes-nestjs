@@ -12,7 +12,11 @@ export class UsersService {
     private readonly prismaService: PrismaService,
     private readonly hashingService: HashingService,
   ) {}
-
+  /**
+   * * * * * * * * * * *
+   * Public user profile (safe fields only).
+   * * * * * * * * * * *
+   */
   async create(createUserDto: CreateUserDto) {
     return await this.prismaService.user.create({
       data: { ...createUserDto },
@@ -20,38 +24,11 @@ export class UsersService {
     });
   }
 
-  /**
-   * Public user profile (safe fields only).
-   */
   async getPublicUserById(id: string) {
     return await this.prismaService.user.findUnique({
       where: { id },
       select: SAFE_USER_SELECT,
     });
-  }
-
-  /**
-   * Internal method (can include sensitive relations).
-   */
-  async findOneByEmail(email: string) {
-    const user = await this.prismaService.user.findUnique({
-      where: { email },
-      select: { id: true, password: true },
-    });
-
-    return user;
-  }
-
-  /**
-   * Internal method (can include sensitive relations).
-   */
-  async findOneById(id: string) {
-    const user = await this.prismaService.user.findUnique({
-      where: { id },
-      include: { refreshTokens: true },
-    });
-
-    return user;
   }
 
   async updateUser({ id, username }: UpdateUserDto) {
@@ -90,7 +67,6 @@ export class UsersService {
         select: SAFE_USER_SELECT,
       });
 
-      // revoke all refresh tokens for this user (log out everywhere)
       await tx.refreshToken.updateMany({
         where: { userId: id, revokedAt: null },
         data: { revokedAt: new Date() },
@@ -98,5 +74,28 @@ export class UsersService {
     });
 
     return updatedUser;
+  }
+
+  /**
+   * * * * * * * * * *
+   * Internal methods (can include sensitive relations).
+   * * * * * * * * * *
+   */
+  async findOneByEmail(email: string) {
+    const user = await this.prismaService.user.findUnique({
+      where: { email },
+      select: { id: true, password: true },
+    });
+
+    return user;
+  }
+
+  async findOneById(id: string) {
+    const user = await this.prismaService.user.findUnique({
+      where: { id },
+      include: { refreshTokens: true },
+    });
+
+    return user;
   }
 }
