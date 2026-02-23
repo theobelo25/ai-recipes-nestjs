@@ -22,4 +22,9 @@ export const createIngredientSchema = Type.Object(
   },
 );
 
-export type CreateIngredientDTO = Static<typeof createIngredientSchema>;
+export const updateIngredientSchema = Type.Partial(createIngredientSchema, {
+  additionalProperties: false,
+});
+
+export type CreateIngredientDto = Static<typeof createIngredientSchema>;
+export type UpdateIngredientDto = Static<typeof updateIngredientSchema>;
