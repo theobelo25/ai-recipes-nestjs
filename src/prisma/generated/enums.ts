@@ -9,7 +9,14 @@
 * 🟢 You can import this file directly.
 */
 
+export const IngredientCategory = {
+  VEGETABLE: 'VEGETABLE',
+  FRUIT: 'FRUIT',
+  MEAT: 'MEAT',
+  DAIRY: 'DAIRY',
+  GRAIN: 'GRAIN',
+  SPICE: 'SPICE',
+  OTHER: 'OTHER'
+} as const
 
-
-// This file is empty because there are no enums in the schema.
-export {}
+export type IngredientCategory = (typeof IngredientCategory)[keyof typeof IngredientCategory]

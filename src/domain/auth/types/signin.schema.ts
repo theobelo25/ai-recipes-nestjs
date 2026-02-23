@@ -6,9 +6,8 @@ export const signinSchema = Type.Object(
     password: Type.String({ minLength: 8 }),
   },
   {
+    required: ['email', 'password'],
     additionalProperties: false,
-
-    // Optional: if you're using ajv-errors plugin
     errorMessage: {
       properties: {
         email: 'Invalid email format.',

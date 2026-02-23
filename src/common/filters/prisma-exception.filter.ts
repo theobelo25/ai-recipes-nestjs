@@ -36,7 +36,7 @@ export class PrismaExceptionFilter implements ExceptionFilter {
       // Add other Prisma error codes and their corresponding HTTP status codes
       default:
         statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
-        errorMessage = 'Internal server error';
+        errorMessage = 'Internal server error.';
     }
 
     const responseBody = {

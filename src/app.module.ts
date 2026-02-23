@@ -8,6 +8,7 @@ import { EnvModule } from './env/env.module';
 import { AuthModule } from './domain/auth/auth.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { IngredientsModule } from './domain/ingredients/ingredients.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { APP_GUARD } from '@nestjs/core';
         limit: 120, // 120 req/min per IP
       },
     ]),
+    IngredientsModule,
   ],
   controllers: [AppController],
   providers: [

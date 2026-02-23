@@ -80,12 +80,12 @@ export type PrismaVersion = {
 }
 
 /**
- * Prisma Client JS version: 7.4.0
- * Query Engine version: ab56fe763f921d033a6c195e7ddeb3e255bdbb57
+ * Prisma Client JS version: 7.4.1
+ * Query Engine version: 55ae170b1ced7fc6ed07a15f110549408c501bb3
  */
 export const prismaVersion: PrismaVersion = {
-  client: "7.4.0",
-  engine: "ab56fe763f921d033a6c195e7ddeb3e255bdbb57"
+  client: "7.4.1",
+  engine: "55ae170b1ced7fc6ed07a15f110549408c501bb3"
 }
 
 /**
@@ -385,7 +385,8 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   User: 'User',
-  RefreshToken: 'RefreshToken'
+  RefreshToken: 'RefreshToken',
+  Ingredient: 'Ingredient'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -401,7 +402,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "refreshToken"
+    modelProps: "user" | "refreshToken" | "ingredient"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -553,6 +554,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Ingredient: {
+      payload: Prisma.$IngredientPayload<ExtArgs>
+      fields: Prisma.IngredientFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.IngredientFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IngredientPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.IngredientFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IngredientPayload>
+        }
+        findFirst: {
+          args: Prisma.IngredientFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IngredientPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.IngredientFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IngredientPayload>
+        }
+        findMany: {
+          args: Prisma.IngredientFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IngredientPayload>[]
+        }
+        create: {
+          args: Prisma.IngredientCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IngredientPayload>
+        }
+        createMany: {
+          args: Prisma.IngredientCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.IngredientCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IngredientPayload>[]
+        }
+        delete: {
+          args: Prisma.IngredientDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IngredientPayload>
+        }
+        update: {
+          args: Prisma.IngredientUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IngredientPayload>
+        }
+        deleteMany: {
+          args: Prisma.IngredientDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.IngredientUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.IngredientUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IngredientPayload>[]
+        }
+        upsert: {
+          args: Prisma.IngredientUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$IngredientPayload>
+        }
+        aggregate: {
+          args: Prisma.IngredientAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateIngredient>
+        }
+        groupBy: {
+          args: Prisma.IngredientGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.IngredientGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.IngredientCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.IngredientCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -622,6 +697,19 @@ export const RefreshTokenScalarFieldEnum = {
 export type RefreshTokenScalarFieldEnum = (typeof RefreshTokenScalarFieldEnum)[keyof typeof RefreshTokenScalarFieldEnum]
 
 
+export const IngredientScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  slug: 'slug',
+  description: 'description',
+  category: 'category',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type IngredientScalarFieldEnum = (typeof IngredientScalarFieldEnum)[keyof typeof IngredientScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -677,6 +765,20 @@ export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel
  * Reference to a field of type 'DateTime[]'
  */
 export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+    
+
+
+/**
+ * Reference to a field of type 'IngredientCategory'
+ */
+export type EnumIngredientCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'IngredientCategory'>
+    
+
+
+/**
+ * Reference to a field of type 'IngredientCategory[]'
+ */
+export type ListEnumIngredientCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'IngredientCategory[]'>
     
 
 
@@ -790,6 +892,7 @@ export type PrismaClientOptions = ({
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
   refreshToken?: Prisma.RefreshTokenOmit
+  ingredient?: Prisma.IngredientOmit
 }
 
 /* Types for Logging */

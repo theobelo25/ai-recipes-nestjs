@@ -24,6 +24,7 @@ export const signupSchema = Type.Object(
     }),
   },
   {
+    required: ['username', 'email', 'password', 'confirmPassword'],
     additionalProperties: false,
     errorMessage: {
       properties: {
