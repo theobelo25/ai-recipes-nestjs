@@ -7,10 +7,13 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
+import { RouteSchema } from '@nestjs/platform-fastify';
 import { IngredientsService } from './ingredients.service';
 import {
   type UpdateIngredientDto,
   type CreateIngredientDto,
+  createIngredientSchema,
+  updateIngredientSchema,
 } from './types/ingredient.schema';
 
 @Controller('ingredients')
@@ -18,6 +21,7 @@ export class IngredientsController {
   constructor(private readonly ingredientsService: IngredientsService) {}
 
   @Post()
+  @RouteSchema({ body: createIngredientSchema })
   create(@Body() createIngredientDto: CreateIngredientDto) {
     return this.ingredientsService.create(createIngredientDto);
   }
@@ -33,6 +37,7 @@ export class IngredientsController {
   }
 
   @Patch(':id')
+  @RouteSchema({ body: updateIngredientSchema })
   update(
     @Param('id') id: string,
     @Body() updateIngredientDto: UpdateIngredientDto,

@@ -16,7 +16,11 @@ import { User } from '../auth/decorators/user.decorator';
 import {
   type UpdateRecipeDto,
   type CreateRecipeDto,
+  CreateRecipeSchema,
+  UpdateRecipeSchema,
+  ReplaceRecipeIngredientsSchema,
 } from './types/recipes.schema';
+import { RouteSchema } from '@nestjs/platform-fastify';
 
 @Controller('recipes')
 export class RecipesController {
@@ -34,12 +38,14 @@ export class RecipesController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
+  @RouteSchema({ body: CreateRecipeSchema })
   create(@User() user: RequestUser, @Body() createRecipeDto: CreateRecipeDto) {
     return this.recipesService.create(user.id, createRecipeDto);
   }
 
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
+  @RouteSchema({ body: UpdateRecipeSchema })
   update(
     @User() user: RequestUser,
     @Param('id') id: string,
@@ -55,10 +61,11 @@ export class RecipesController {
 
   @UseGuards(JwtAuthGuard)
   @Put(':id/ingredients')
+  @RouteSchema({ body: ReplaceRecipeIngredientsSchema })
   replaceIngredients(
     @User() user: RequestUser,
     @Param('id') id: string,
-    @Body() body: { ingredients: CreateRecipeDto['ingredients'] },
+    @Body() body: { ingredients: UpdateRecipeDto['ingredients'] },
   ) {
     return this.recipesService.replaceIngredients(
       user.id,

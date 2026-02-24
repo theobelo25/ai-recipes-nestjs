@@ -11,6 +11,15 @@ export const RecipeIngredientInputSchema = Type.Object(
   { additionalProperties: false },
 );
 
+export const ReplaceRecipeIngredientsSchema = Type.Object(
+  {
+    ingredients: Type.Array(RecipeIngredientInputSchema, {
+      maxItems: 100,
+    }),
+  },
+  { additionalProperties: false },
+);
+
 export const CreateRecipeSchema = Type.Object(
   {
     title: Type.String({ minLength: 2, maxLength: 120 }),
