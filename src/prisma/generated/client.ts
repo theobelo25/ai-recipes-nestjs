@@ -57,3 +57,13 @@ export type Ingredient = Prisma.IngredientModel
  * 
  */
 export type PantryItem = Prisma.PantryItemModel
+/**
+ * Model Recipe
+ * 
+ */
+export type Recipe = Prisma.RecipeModel
+/**
+ * Model RecipeIngredient
+ * 
+ */
+export type RecipeIngredient = Prisma.RecipeIngredientModel

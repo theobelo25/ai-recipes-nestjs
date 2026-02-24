@@ -199,6 +199,7 @@ export type IngredientWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Ingredient"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Ingredient"> | Date | string
   pantryItems?: Prisma.PantryItemListRelationFilter
+  recipeIngredients?: Prisma.RecipeIngredientListRelationFilter
 }
 
 export type IngredientOrderByWithRelationInput = {
@@ -210,6 +211,7 @@ export type IngredientOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   pantryItems?: Prisma.PantryItemOrderByRelationAggregateInput
+  recipeIngredients?: Prisma.RecipeIngredientOrderByRelationAggregateInput
 }
 
 export type IngredientWhereUniqueInput = Prisma.AtLeast<{
@@ -224,6 +226,7 @@ export type IngredientWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Ingredient"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Ingredient"> | Date | string
   pantryItems?: Prisma.PantryItemListRelationFilter
+  recipeIngredients?: Prisma.RecipeIngredientListRelationFilter
 }, "id" | "slug">
 
 export type IngredientOrderByWithAggregationInput = {
@@ -261,6 +264,7 @@ export type IngredientCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   pantryItems?: Prisma.PantryItemCreateNestedManyWithoutIngredientInput
+  recipeIngredients?: Prisma.RecipeIngredientCreateNestedManyWithoutIngredientInput
 }
 
 export type IngredientUncheckedCreateInput = {
@@ -272,6 +276,7 @@ export type IngredientUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   pantryItems?: Prisma.PantryItemUncheckedCreateNestedManyWithoutIngredientInput
+  recipeIngredients?: Prisma.RecipeIngredientUncheckedCreateNestedManyWithoutIngredientInput
 }
 
 export type IngredientUpdateInput = {
@@ -283,6 +288,7 @@ export type IngredientUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   pantryItems?: Prisma.PantryItemUpdateManyWithoutIngredientNestedInput
+  recipeIngredients?: Prisma.RecipeIngredientUpdateManyWithoutIngredientNestedInput
 }
 
 export type IngredientUncheckedUpdateInput = {
@@ -294,6 +300,7 @@ export type IngredientUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   pantryItems?: Prisma.PantryItemUncheckedUpdateManyWithoutIngredientNestedInput
+  recipeIngredients?: Prisma.RecipeIngredientUncheckedUpdateManyWithoutIngredientNestedInput
 }
 
 export type IngredientCreateManyInput = {
@@ -379,6 +386,20 @@ export type IngredientUpdateOneRequiredWithoutPantryItemsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.IngredientUpdateToOneWithWhereWithoutPantryItemsInput, Prisma.IngredientUpdateWithoutPantryItemsInput>, Prisma.IngredientUncheckedUpdateWithoutPantryItemsInput>
 }
 
+export type IngredientCreateNestedOneWithoutRecipeIngredientsInput = {
+  create?: Prisma.XOR<Prisma.IngredientCreateWithoutRecipeIngredientsInput, Prisma.IngredientUncheckedCreateWithoutRecipeIngredientsInput>
+  connectOrCreate?: Prisma.IngredientCreateOrConnectWithoutRecipeIngredientsInput
+  connect?: Prisma.IngredientWhereUniqueInput
+}
+
+export type IngredientUpdateOneRequiredWithoutRecipeIngredientsNestedInput = {
+  create?: Prisma.XOR<Prisma.IngredientCreateWithoutRecipeIngredientsInput, Prisma.IngredientUncheckedCreateWithoutRecipeIngredientsInput>
+  connectOrCreate?: Prisma.IngredientCreateOrConnectWithoutRecipeIngredientsInput
+  upsert?: Prisma.IngredientUpsertWithoutRecipeIngredientsInput
+  connect?: Prisma.IngredientWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.IngredientUpdateToOneWithWhereWithoutRecipeIngredientsInput, Prisma.IngredientUpdateWithoutRecipeIngredientsInput>, Prisma.IngredientUncheckedUpdateWithoutRecipeIngredientsInput>
+}
+
 export type IngredientCreateWithoutPantryItemsInput = {
   id?: string
   name: string
@@ -387,6 +408,7 @@ export type IngredientCreateWithoutPantryItemsInput = {
   category?: $Enums.IngredientCategory | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  recipeIngredients?: Prisma.RecipeIngredientCreateNestedManyWithoutIngredientInput
 }
 
 export type IngredientUncheckedCreateWithoutPantryItemsInput = {
@@ -397,6 +419,7 @@ export type IngredientUncheckedCreateWithoutPantryItemsInput = {
   category?: $Enums.IngredientCategory | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  recipeIngredients?: Prisma.RecipeIngredientUncheckedCreateNestedManyWithoutIngredientInput
 }
 
 export type IngredientCreateOrConnectWithoutPantryItemsInput = {
@@ -423,6 +446,7 @@ export type IngredientUpdateWithoutPantryItemsInput = {
   category?: Prisma.NullableEnumIngredientCategoryFieldUpdateOperationsInput | $Enums.IngredientCategory | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  recipeIngredients?: Prisma.RecipeIngredientUpdateManyWithoutIngredientNestedInput
 }
 
 export type IngredientUncheckedUpdateWithoutPantryItemsInput = {
@@ -433,6 +457,67 @@ export type IngredientUncheckedUpdateWithoutPantryItemsInput = {
   category?: Prisma.NullableEnumIngredientCategoryFieldUpdateOperationsInput | $Enums.IngredientCategory | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  recipeIngredients?: Prisma.RecipeIngredientUncheckedUpdateManyWithoutIngredientNestedInput
+}
+
+export type IngredientCreateWithoutRecipeIngredientsInput = {
+  id?: string
+  name: string
+  slug: string
+  description?: string | null
+  category?: $Enums.IngredientCategory | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  pantryItems?: Prisma.PantryItemCreateNestedManyWithoutIngredientInput
+}
+
+export type IngredientUncheckedCreateWithoutRecipeIngredientsInput = {
+  id?: string
+  name: string
+  slug: string
+  description?: string | null
+  category?: $Enums.IngredientCategory | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  pantryItems?: Prisma.PantryItemUncheckedCreateNestedManyWithoutIngredientInput
+}
+
+export type IngredientCreateOrConnectWithoutRecipeIngredientsInput = {
+  where: Prisma.IngredientWhereUniqueInput
+  create: Prisma.XOR<Prisma.IngredientCreateWithoutRecipeIngredientsInput, Prisma.IngredientUncheckedCreateWithoutRecipeIngredientsInput>
+}
+
+export type IngredientUpsertWithoutRecipeIngredientsInput = {
+  update: Prisma.XOR<Prisma.IngredientUpdateWithoutRecipeIngredientsInput, Prisma.IngredientUncheckedUpdateWithoutRecipeIngredientsInput>
+  create: Prisma.XOR<Prisma.IngredientCreateWithoutRecipeIngredientsInput, Prisma.IngredientUncheckedCreateWithoutRecipeIngredientsInput>
+  where?: Prisma.IngredientWhereInput
+}
+
+export type IngredientUpdateToOneWithWhereWithoutRecipeIngredientsInput = {
+  where?: Prisma.IngredientWhereInput
+  data: Prisma.XOR<Prisma.IngredientUpdateWithoutRecipeIngredientsInput, Prisma.IngredientUncheckedUpdateWithoutRecipeIngredientsInput>
+}
+
+export type IngredientUpdateWithoutRecipeIngredientsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.NullableEnumIngredientCategoryFieldUpdateOperationsInput | $Enums.IngredientCategory | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  pantryItems?: Prisma.PantryItemUpdateManyWithoutIngredientNestedInput
+}
+
+export type IngredientUncheckedUpdateWithoutRecipeIngredientsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  category?: Prisma.NullableEnumIngredientCategoryFieldUpdateOperationsInput | $Enums.IngredientCategory | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  pantryItems?: Prisma.PantryItemUncheckedUpdateManyWithoutIngredientNestedInput
 }
 
 
@@ -442,10 +527,12 @@ export type IngredientUncheckedUpdateWithoutPantryItemsInput = {
 
 export type IngredientCountOutputType = {
   pantryItems: number
+  recipeIngredients: number
 }
 
 export type IngredientCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   pantryItems?: boolean | IngredientCountOutputTypeCountPantryItemsArgs
+  recipeIngredients?: boolean | IngredientCountOutputTypeCountRecipeIngredientsArgs
 }
 
 /**
@@ -465,6 +552,13 @@ export type IngredientCountOutputTypeCountPantryItemsArgs<ExtArgs extends runtim
   where?: Prisma.PantryItemWhereInput
 }
 
+/**
+ * IngredientCountOutputType without action
+ */
+export type IngredientCountOutputTypeCountRecipeIngredientsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.RecipeIngredientWhereInput
+}
+
 
 export type IngredientSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -475,6 +569,7 @@ export type IngredientSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   createdAt?: boolean
   updatedAt?: boolean
   pantryItems?: boolean | Prisma.Ingredient$pantryItemsArgs<ExtArgs>
+  recipeIngredients?: boolean | Prisma.Ingredient$recipeIngredientsArgs<ExtArgs>
   _count?: boolean | Prisma.IngredientCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["ingredient"]>
 
@@ -511,6 +606,7 @@ export type IngredientSelectScalar = {
 export type IngredientOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "description" | "category" | "createdAt" | "updatedAt", ExtArgs["result"]["ingredient"]>
 export type IngredientInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   pantryItems?: boolean | Prisma.Ingredient$pantryItemsArgs<ExtArgs>
+  recipeIngredients?: boolean | Prisma.Ingredient$recipeIngredientsArgs<ExtArgs>
   _count?: boolean | Prisma.IngredientCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type IngredientIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -520,6 +616,7 @@ export type $IngredientPayload<ExtArgs extends runtime.Types.Extensions.Internal
   name: "Ingredient"
   objects: {
     pantryItems: Prisma.$PantryItemPayload<ExtArgs>[]
+    recipeIngredients: Prisma.$RecipeIngredientPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -924,6 +1021,7 @@ readonly fields: IngredientFieldRefs;
 export interface Prisma__IngredientClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   pantryItems<T extends Prisma.Ingredient$pantryItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Ingredient$pantryItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PantryItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  recipeIngredients<T extends Prisma.Ingredient$recipeIngredientsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Ingredient$recipeIngredientsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RecipeIngredientPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1369,6 +1467,30 @@ export type Ingredient$pantryItemsArgs<ExtArgs extends runtime.Types.Extensions.
   take?: number
   skip?: number
   distinct?: Prisma.PantryItemScalarFieldEnum | Prisma.PantryItemScalarFieldEnum[]
+}
+
+/**
+ * Ingredient.recipeIngredients
+ */
+export type Ingredient$recipeIngredientsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the RecipeIngredient
+   */
+  select?: Prisma.RecipeIngredientSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the RecipeIngredient
+   */
+  omit?: Prisma.RecipeIngredientOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RecipeIngredientInclude<ExtArgs> | null
+  where?: Prisma.RecipeIngredientWhereInput
+  orderBy?: Prisma.RecipeIngredientOrderByWithRelationInput | Prisma.RecipeIngredientOrderByWithRelationInput[]
+  cursor?: Prisma.RecipeIngredientWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.RecipeIngredientScalarFieldEnum | Prisma.RecipeIngredientScalarFieldEnum[]
 }
 
 /**

@@ -10,6 +10,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { IngredientsModule } from './domain/ingredients/ingredients.module';
 import { PantryModule } from './domain/pantry/pantry.module';
+import { RecipesModule } from './domain/recipes/recipes.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { PantryModule } from './domain/pantry/pantry.module';
     ]),
     IngredientsModule,
     PantryModule,
+    RecipesModule,
   ],
   controllers: [AppController],
   providers: [

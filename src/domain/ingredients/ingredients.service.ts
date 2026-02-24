@@ -4,20 +4,14 @@ import {
   CreateIngredientDto,
   UpdateIngredientDto,
 } from './types/ingredient.schema';
+import { slugify } from 'src/common/utils/slugify';
 
 @Injectable()
 export class IngredientsService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  private generateSlug(name: string) {
-    return name
-      .toLowerCase()
-      .replace(/\s+/g, '-')
-      .replace(/[^\w-]+/g, '');
-  }
-
   async create(createIngredientDto: CreateIngredientDto) {
-    const slug = this.generateSlug(createIngredientDto.name);
+    const slug = slugify(createIngredientDto.name);
 
     return await this.prismaService.ingredient.create({
       data: { ...createIngredientDto, slug },

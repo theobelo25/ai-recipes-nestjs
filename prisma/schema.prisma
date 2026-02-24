@@ -26,6 +26,7 @@ model User {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  recipes   Recipe[]
 }
 
 model RefreshToken {
@@ -66,8 +67,9 @@ model Ingredient {
 
   pantryItems PantryItem[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  recipeIngredients RecipeIngredient[]
 }
 
 enum IngredientCategory {
@@ -98,5 +100,51 @@ model PantryItem {
 
   @@unique([userId, ingredientId]) // one row per ingredient per user
   @@index([userId])
+  @@index([ingredientId])
+}
+
+model Recipe {
+  id String @id @default(uuid()) @db.Uuid
+
+  title        String
+  slug         String  @unique
+  description  String?
+  instructions String
+  servings     Int?
+  prepMinutes  Int?
+  cookMinutes  Int?
+
+  sourceUrl  String?
+  sourceName String?
+
+  authorId String? @db.Uuid
+  author   User?   @relation(fields: [authorId], references: [id], onDelete: SetNull)
+
+  ingredients RecipeIngredient[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([authorId])
+  @@index([slug])
+}
+
+model RecipeIngredient {
+  id String @id @default(uuid()) @db.Uuid
+
+  recipeId     String @db.Uuid
+  ingredientId String @db.Uuid
+
+  quantity Float?
+  unit     String?
+  note     String?
+
+  sortOrder Int @default(0)
+
+  recipe     Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  ingredient Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Restrict)
+
+  @@unique([recipeId, ingredientId])
+  @@index([recipeId])
   @@index([ingredientId])
 }
