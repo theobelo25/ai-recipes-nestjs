@@ -11,7 +11,7 @@ import { IngredientsService } from './ingredients.service';
 import {
   type UpdateIngredientDto,
   type CreateIngredientDto,
-} from './types/create-ingredient.schema';
+} from './types/ingredient.schema';
 
 @Controller('ingredients')
 export class IngredientsController {

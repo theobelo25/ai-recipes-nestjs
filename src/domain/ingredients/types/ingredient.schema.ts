@@ -24,6 +24,10 @@ export const createIngredientSchema = Type.Object(
 
 export const updateIngredientSchema = Type.Partial(createIngredientSchema, {
   additionalProperties: false,
+  minProperties: 1,
+  errorMessage: {
+    minProperties: 'Must update at least one property.',
+  },
 });
 
 export type CreateIngredientDto = Static<typeof createIngredientSchema>;

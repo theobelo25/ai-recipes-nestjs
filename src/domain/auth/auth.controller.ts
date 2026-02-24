@@ -8,10 +8,13 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { signupSchema, type SignupDto } from './types/signup.schema';
+import {
+  signupSchema,
+  type SignupDto,
+  signinSchema,
+} from './types/auth.schema';
 import { RouteSchema } from '@nestjs/platform-fastify';
 import { type FastifyReply, type FastifyRequest } from 'fastify';
-import { signinSchema } from './types/signin.schema';
 import { LocalAuthGuard } from './guards/local-auth/local-auth.guard';
 import { User } from './decorators/user.decorator';
 import { type RequestUser } from './interfaces/request-user.interface';

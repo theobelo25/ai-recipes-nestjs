@@ -32,3 +32,8 @@ export type RefreshToken = Prisma.RefreshTokenModel
  * 
  */
 export type Ingredient = Prisma.IngredientModel
+/**
+ * Model PantryItem
+ * 
+ */
+export type PantryItem = Prisma.PantryItemModel

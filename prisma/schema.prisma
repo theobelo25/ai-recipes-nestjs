@@ -22,6 +22,7 @@ model User {
   password String
 
   refreshTokens RefreshToken[]
+  pantryItems   PantryItem[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -40,14 +41,12 @@ model RefreshToken {
   createdAt DateTime @default(now())
   expiresAt DateTime
 
-  // NEW: lifecycle
   lastUsedAt   DateTime?
   revokedAt    DateTime?
   replacedById String?       @unique @db.Uuid
   replacedBy   RefreshToken? @relation("RefreshTokenRotation", fields: [replacedById], references: [id])
   replaces     RefreshToken? @relation("RefreshTokenRotation")
 
-  // NEW: optional device metadata (helps with multi-device management UI)
   deviceLabel   String?
   userAgentHash String?
   ipFirstSeen   String?
@@ -64,8 +63,11 @@ model Ingredient {
   slug        String              @unique
   description String?
   category    IngredientCategory?
-  createdAt   DateTime            @default(now())
-  updatedAt   DateTime            @updatedAt
+
+  pantryItems PantryItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum IngredientCategory {
@@ -76,4 +78,25 @@ enum IngredientCategory {
   GRAIN
   SPICE
   OTHER
+}
+
+model PantryItem {
+  id String @id @default(uuid()) @db.Uuid
+
+  userId       String @db.Uuid
+  ingredientId String @db.Uuid
+
+  quantity Float?
+  unit     String?
+  notes    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ingredient Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, ingredientId]) // one row per ingredient per user
+  @@index([userId])
+  @@index([ingredientId])
 }

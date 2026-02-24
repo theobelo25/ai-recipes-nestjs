@@ -3,7 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import {
   CreateIngredientDto,
   UpdateIngredientDto,
-} from './types/create-ingredient.schema';
+} from './types/ingredient.schema';
 
 @Injectable()
 export class IngredientsService {
