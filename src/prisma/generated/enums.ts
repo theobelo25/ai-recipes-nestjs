@@ -10,13 +10,13 @@
 */
 
 export const IngredientCategory = {
-  VEGETABLE: 'VEGETABLE',
-  FRUIT: 'FRUIT',
-  MEAT: 'MEAT',
-  DAIRY: 'DAIRY',
-  GRAIN: 'GRAIN',
-  SPICE: 'SPICE',
-  OTHER: 'OTHER'
+  vegetable: 'vegetable',
+  fruit: 'fruit',
+  meat: 'meat',
+  dairy: 'dairy',
+  grain: 'grain',
+  spice: 'spice',
+  other: 'other'
 } as const
 
 export type IngredientCategory = (typeof IngredientCategory)[keyof typeof IngredientCategory]

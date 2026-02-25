@@ -3,7 +3,7 @@ import { IngredientCategory } from 'src/prisma/generated/enums';
 
 export const createIngredientSchema = Type.Object(
   {
-    name: Type.String(),
+    name: Type.String({ maxLength: 100 }),
     description: Type.Optional(Type.String({ maxLength: 500 })),
     category: Type.Optional(Type.Enum(IngredientCategory)),
   },

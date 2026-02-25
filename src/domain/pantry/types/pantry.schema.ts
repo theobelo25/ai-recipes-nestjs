@@ -1,4 +1,5 @@
 import { Type, Static } from '@sinclair/typebox';
+import { IngredientCategory } from 'src/prisma/generated/enums';
 
 export const PantryItemUnitSchema = Type.Optional(
   Type.String({ minLength: 1, maxLength: 32 }),
@@ -10,7 +11,8 @@ export const PantryItemNotesSchema = Type.Optional(
 
 export const AddPantryItemSchema = Type.Object(
   {
-    ingredientId: Type.String({ format: 'uuid' }),
+    name: Type.String({ maxLength: 100 }),
+    category: Type.Enum(IngredientCategory),
     quantity: Type.Optional(Type.Number({ minimum: 0 })),
     unit: PantryItemUnitSchema,
     notes: PantryItemNotesSchema,

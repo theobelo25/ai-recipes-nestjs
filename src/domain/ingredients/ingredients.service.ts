@@ -5,6 +5,8 @@ import {
   UpdateIngredientDto,
 } from './types/ingredient.schema';
 import { slugify } from 'src/common/utils/slugify';
+import { TransactionClient } from 'src/prisma/generated/internal/prismaNamespace';
+import { IngredientCategory } from 'src/prisma/generated/enums';
 
 @Injectable()
 export class IngredientsService {
@@ -37,6 +39,21 @@ export class IngredientsService {
   async remove(id: string) {
     return this.prismaService.ingredient.delete({
       where: { id },
+    });
+  }
+
+  async upsertBySlug(
+    tx: TransactionClient,
+    input: { name: string; slug: string; category?: IngredientCategory },
+  ) {
+    const { slug, name, category } = input;
+
+    return await tx.ingredient.upsert({
+      where: { slug },
+      create: { name, slug, category },
+      update: {
+        ...(category !== undefined ? { category } : {}),
+      },
     });
   }
 }

@@ -59,11 +59,10 @@ model RefreshToken {
 }
 
 model Ingredient {
-  id          String              @id @default(uuid()) @db.Uuid
-  name        String
-  slug        String              @unique
-  description String?
-  category    IngredientCategory?
+  id       String              @id @default(uuid()) @db.Uuid
+  name     String
+  slug     String              @unique
+  category IngredientCategory?
 
   pantryItems PantryItem[]
 
@@ -73,13 +72,13 @@ model Ingredient {
 }
 
 enum IngredientCategory {
-  VEGETABLE
-  FRUIT
-  MEAT
-  DAIRY
-  GRAIN
-  SPICE
-  OTHER
+  vegetable
+  fruit
+  meat
+  dairy
+  grain
+  spice
+  other
 }
 
 model PantryItem {

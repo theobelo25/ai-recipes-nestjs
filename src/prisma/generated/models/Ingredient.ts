@@ -28,7 +28,6 @@ export type IngredientMinAggregateOutputType = {
   id: string | null
   name: string | null
   slug: string | null
-  description: string | null
   category: $Enums.IngredientCategory | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -38,7 +37,6 @@ export type IngredientMaxAggregateOutputType = {
   id: string | null
   name: string | null
   slug: string | null
-  description: string | null
   category: $Enums.IngredientCategory | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -48,7 +46,6 @@ export type IngredientCountAggregateOutputType = {
   id: number
   name: number
   slug: number
-  description: number
   category: number
   createdAt: number
   updatedAt: number
@@ -60,7 +57,6 @@ export type IngredientMinAggregateInputType = {
   id?: true
   name?: true
   slug?: true
-  description?: true
   category?: true
   createdAt?: true
   updatedAt?: true
@@ -70,7 +66,6 @@ export type IngredientMaxAggregateInputType = {
   id?: true
   name?: true
   slug?: true
-  description?: true
   category?: true
   createdAt?: true
   updatedAt?: true
@@ -80,7 +75,6 @@ export type IngredientCountAggregateInputType = {
   id?: true
   name?: true
   slug?: true
-  description?: true
   category?: true
   createdAt?: true
   updatedAt?: true
@@ -163,7 +157,6 @@ export type IngredientGroupByOutputType = {
   id: string
   name: string
   slug: string
-  description: string | null
   category: $Enums.IngredientCategory | null
   createdAt: Date
   updatedAt: Date
@@ -194,7 +187,6 @@ export type IngredientWhereInput = {
   id?: Prisma.UuidFilter<"Ingredient"> | string
   name?: Prisma.StringFilter<"Ingredient"> | string
   slug?: Prisma.StringFilter<"Ingredient"> | string
-  description?: Prisma.StringNullableFilter<"Ingredient"> | string | null
   category?: Prisma.EnumIngredientCategoryNullableFilter<"Ingredient"> | $Enums.IngredientCategory | null
   createdAt?: Prisma.DateTimeFilter<"Ingredient"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Ingredient"> | Date | string
@@ -206,7 +198,6 @@ export type IngredientOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
-  description?: Prisma.SortOrderInput | Prisma.SortOrder
   category?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -221,7 +212,6 @@ export type IngredientWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.IngredientWhereInput[]
   NOT?: Prisma.IngredientWhereInput | Prisma.IngredientWhereInput[]
   name?: Prisma.StringFilter<"Ingredient"> | string
-  description?: Prisma.StringNullableFilter<"Ingredient"> | string | null
   category?: Prisma.EnumIngredientCategoryNullableFilter<"Ingredient"> | $Enums.IngredientCategory | null
   createdAt?: Prisma.DateTimeFilter<"Ingredient"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Ingredient"> | Date | string
@@ -233,7 +223,6 @@ export type IngredientOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
-  description?: Prisma.SortOrderInput | Prisma.SortOrder
   category?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -249,7 +238,6 @@ export type IngredientScalarWhereWithAggregatesInput = {
   id?: Prisma.UuidWithAggregatesFilter<"Ingredient"> | string
   name?: Prisma.StringWithAggregatesFilter<"Ingredient"> | string
   slug?: Prisma.StringWithAggregatesFilter<"Ingredient"> | string
-  description?: Prisma.StringNullableWithAggregatesFilter<"Ingredient"> | string | null
   category?: Prisma.EnumIngredientCategoryNullableWithAggregatesFilter<"Ingredient"> | $Enums.IngredientCategory | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Ingredient"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Ingredient"> | Date | string
@@ -259,7 +247,6 @@ export type IngredientCreateInput = {
   id?: string
   name: string
   slug: string
-  description?: string | null
   category?: $Enums.IngredientCategory | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -271,7 +258,6 @@ export type IngredientUncheckedCreateInput = {
   id?: string
   name: string
   slug: string
-  description?: string | null
   category?: $Enums.IngredientCategory | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -283,7 +269,6 @@ export type IngredientUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.NullableEnumIngredientCategoryFieldUpdateOperationsInput | $Enums.IngredientCategory | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -295,7 +280,6 @@ export type IngredientUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.NullableEnumIngredientCategoryFieldUpdateOperationsInput | $Enums.IngredientCategory | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -307,7 +291,6 @@ export type IngredientCreateManyInput = {
   id?: string
   name: string
   slug: string
-  description?: string | null
   category?: $Enums.IngredientCategory | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -317,7 +300,6 @@ export type IngredientUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.NullableEnumIngredientCategoryFieldUpdateOperationsInput | $Enums.IngredientCategory | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -327,7 +309,6 @@ export type IngredientUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.NullableEnumIngredientCategoryFieldUpdateOperationsInput | $Enums.IngredientCategory | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -337,7 +318,6 @@ export type IngredientCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
-  description?: Prisma.SortOrder
   category?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -347,7 +327,6 @@ export type IngredientMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
-  description?: Prisma.SortOrder
   category?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -357,7 +336,6 @@ export type IngredientMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
-  description?: Prisma.SortOrder
   category?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -404,7 +382,6 @@ export type IngredientCreateWithoutPantryItemsInput = {
   id?: string
   name: string
   slug: string
-  description?: string | null
   category?: $Enums.IngredientCategory | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -415,7 +392,6 @@ export type IngredientUncheckedCreateWithoutPantryItemsInput = {
   id?: string
   name: string
   slug: string
-  description?: string | null
   category?: $Enums.IngredientCategory | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -442,7 +418,6 @@ export type IngredientUpdateWithoutPantryItemsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.NullableEnumIngredientCategoryFieldUpdateOperationsInput | $Enums.IngredientCategory | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -453,7 +428,6 @@ export type IngredientUncheckedUpdateWithoutPantryItemsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.NullableEnumIngredientCategoryFieldUpdateOperationsInput | $Enums.IngredientCategory | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -464,7 +438,6 @@ export type IngredientCreateWithoutRecipeIngredientsInput = {
   id?: string
   name: string
   slug: string
-  description?: string | null
   category?: $Enums.IngredientCategory | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -475,7 +448,6 @@ export type IngredientUncheckedCreateWithoutRecipeIngredientsInput = {
   id?: string
   name: string
   slug: string
-  description?: string | null
   category?: $Enums.IngredientCategory | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -502,7 +474,6 @@ export type IngredientUpdateWithoutRecipeIngredientsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.NullableEnumIngredientCategoryFieldUpdateOperationsInput | $Enums.IngredientCategory | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -513,7 +484,6 @@ export type IngredientUncheckedUpdateWithoutRecipeIngredientsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   category?: Prisma.NullableEnumIngredientCategoryFieldUpdateOperationsInput | $Enums.IngredientCategory | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -564,7 +534,6 @@ export type IngredientSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   id?: boolean
   name?: boolean
   slug?: boolean
-  description?: boolean
   category?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -577,7 +546,6 @@ export type IngredientSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   id?: boolean
   name?: boolean
   slug?: boolean
-  description?: boolean
   category?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -587,7 +555,6 @@ export type IngredientSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   id?: boolean
   name?: boolean
   slug?: boolean
-  description?: boolean
   category?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -597,13 +564,12 @@ export type IngredientSelectScalar = {
   id?: boolean
   name?: boolean
   slug?: boolean
-  description?: boolean
   category?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type IngredientOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "description" | "category" | "createdAt" | "updatedAt", ExtArgs["result"]["ingredient"]>
+export type IngredientOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "category" | "createdAt" | "updatedAt", ExtArgs["result"]["ingredient"]>
 export type IngredientInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   pantryItems?: boolean | Prisma.Ingredient$pantryItemsArgs<ExtArgs>
   recipeIngredients?: boolean | Prisma.Ingredient$recipeIngredientsArgs<ExtArgs>
@@ -622,7 +588,6 @@ export type $IngredientPayload<ExtArgs extends runtime.Types.Extensions.Internal
     id: string
     name: string
     slug: string
-    description: string | null
     category: $Enums.IngredientCategory | null
     createdAt: Date
     updatedAt: Date
@@ -1054,7 +1019,6 @@ export interface IngredientFieldRefs {
   readonly id: Prisma.FieldRef<"Ingredient", 'String'>
   readonly name: Prisma.FieldRef<"Ingredient", 'String'>
   readonly slug: Prisma.FieldRef<"Ingredient", 'String'>
-  readonly description: Prisma.FieldRef<"Ingredient", 'String'>
   readonly category: Prisma.FieldRef<"Ingredient", 'IngredientCategory'>
   readonly createdAt: Prisma.FieldRef<"Ingredient", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Ingredient", 'DateTime'>

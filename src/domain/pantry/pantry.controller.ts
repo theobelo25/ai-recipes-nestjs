@@ -30,6 +30,11 @@ export class PantryController {
     return this.pantryService.list(user.id);
   }
 
+  @Get('recent')
+  listRecent(@User() user: RequestUser) {
+    return this.pantryService.listRecent(user.id);
+  }
+
   @Post()
   @RouteSchema({ body: AddPantryItemSchema })
   add(@User() user: RequestUser, @Body() addPantryItemDto: AddPantryItemDto) {
