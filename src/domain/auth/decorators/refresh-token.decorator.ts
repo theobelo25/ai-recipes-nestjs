@@ -1,6 +1,6 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import type { FastifyRequest } from 'fastify';
-import { REFRESH_COOKIE } from '../types/auth.contants';
+import { REFRESH_COOKIE } from '../types/auth.constants';
 
 export const RefreshToken = createParamDecorator(
   (_data: unknown, ctx: ExecutionContext) => {

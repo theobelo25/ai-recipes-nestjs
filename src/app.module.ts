@@ -11,9 +11,15 @@ import { APP_GUARD } from '@nestjs/core';
 import { IngredientsModule } from './domain/ingredients/ingredients.module';
 import { PantryModule } from './domain/pantry/pantry.module';
 import { RecipesModule } from './domain/recipes/recipes.module';
+import { AiModule } from './domain/ai/ai.module';
+import { ConfigModule } from '@nestjs/config';
+import aiConfig from './domain/ai/config/ai.config';
+import { appConfig } from './config/app.config';
+import { accessJwtConfig } from './domain/auth/config/access-jwt.config';
 
 @Module({
   imports: [
+    AiModule,
     ValidationModule,
     UsersModule,
     PrismaModule,
@@ -26,9 +32,14 @@ import { RecipesModule } from './domain/recipes/recipes.module';
         limit: 120, // 120 req/min per IP
       },
     ]),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [appConfig, aiConfig, accessJwtConfig],
+    }),
     IngredientsModule,
     PantryModule,
     RecipesModule,
+    AiModule,
   ],
   controllers: [AppController],
   providers: [

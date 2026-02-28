@@ -7,7 +7,7 @@ import { AuthModule } from '../auth/auth.module';
 import { AuthService } from '../auth/auth.service';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
-import refreshJwtConfig from '../auth/config/refresh-token.config';
+import { refreshTokenConfig } from '../auth/config/refresh-token.config';
 import { AuthCookiesService } from '../auth/cookies/auth-cookies.service';
 
 @Module({
@@ -15,7 +15,7 @@ import { AuthCookiesService } from '../auth/cookies/auth-cookies.service';
     ConfigModule,
     forwardRef(() => AuthModule),
     JwtModule,
-    ConfigModule.forFeature(refreshJwtConfig),
+    ConfigModule.forFeature(refreshTokenConfig),
   ],
   controllers: [UsersController],
   providers: [

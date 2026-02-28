@@ -6,10 +6,27 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateRecipeDto, UpdateRecipeDto } from './types/recipes.schema';
 import { slugify } from 'src/common/utils/slugify';
+import { AiService } from '../ai/ai.service';
+import { RecipeResponseSchema } from '../ai/types';
+import { RecipeAIResponse } from './types/recipes.schema';
 
 @Injectable()
 export class RecipesService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly aiService: AiService,
+  ) {}
+
+  async generateRecipeFromIngredients(ingredients: string[]) {
+    const prompt = `Create a recipe using these ingredients: ${ingredients.join(', ')}.`;
+    const system = `Return ONLY valid JSON matching the provided schema. No prose.`;
+
+    return this.aiService.generateJson<RecipeAIResponse>({
+      prompt,
+      schema: RecipeResponseSchema,
+      system,
+    });
+  }
 
   async listPublic() {
     return this.prismaService.recipe.findMany({

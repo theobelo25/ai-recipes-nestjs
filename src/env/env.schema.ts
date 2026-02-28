@@ -1,3 +1,4 @@
+import { AI_PROVIDER_KEYS } from 'src/domain/ai/providers/provider.keys';
 import { z } from 'zod';
 
 export const envSchema = z.object({
@@ -20,6 +21,11 @@ export const envSchema = z.object({
   REFRESH_PREFIX_SECRET: z.string().min(32),
   JWT_ISSUER: z.string().min(1),
   JWT_AUDIENCE: z.string().min(1),
+
+  AI_PROVIDER: z.enum(AI_PROVIDER_KEYS),
+  GEMINI_API_KEY: z.string().min(1),
+  GEMINI_MODEL: z.string().min(1),
+  GEMINI_BASE_URL: z.url(),
 });
 
 // Handy typed shape if you want it elsewhere

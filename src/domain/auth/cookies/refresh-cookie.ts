@@ -1,33 +1,29 @@
 import { FastifyReply } from 'fastify';
 
-export type RefreshCookieOptions = {
-  maxAgeSeconds: number; // align with refresh TTL
-  isProd: boolean;
-};
+function baseOptions(secure: boolean) {
+  return {
+    httpOnly: true,
+    sameSite: 'lax' as const,
+    secure,
+    path: '/',
+  };
+}
 
 export function setRefreshCookie(
   reply: FastifyReply,
   token: string,
-  opts: RefreshCookieOptions,
+  secure: boolean,
+  maxAgeSeconds: number,
 ) {
   reply.setCookie('refreshToken', token, {
-    httpOnly: true,
-    secure: opts.isProd,
-    sameSite: 'lax',
-    path: '/',
-    maxAge: opts.maxAgeSeconds,
+    ...baseOptions(secure),
+    maxAge: maxAgeSeconds,
   });
 }
 
-export function clearRefreshCookie(
-  reply: FastifyReply,
-  opts: RefreshCookieOptions,
-) {
+export function clearRefreshCookie(reply: FastifyReply, secure: boolean) {
   reply.clearCookie('refreshToken', {
-    httpOnly: true,
-    secure: opts.isProd,
-    sameSite: 'lax',
-    path: '/',
+    ...baseOptions(secure),
     maxAge: 0,
   });
 }

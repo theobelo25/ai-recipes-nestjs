@@ -5,8 +5,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { HashingService } from '../hashing/hashing.service';
 
 import { randomBytes, createHmac } from 'node:crypto';
-import refreshTokenConfig from '../config/refresh-token.config';
-import ms from 'ms';
+import { refreshTokenConfig } from '../config/refresh-token.config';
 
 @Injectable()
 export class RefreshTokenService {
@@ -18,34 +17,11 @@ export class RefreshTokenService {
   ) {}
 
   private get refreshTtlSeconds(): number {
-    const duration = ms(this.refreshConfig.ttl);
-
-    if (
-      typeof duration !== 'number' ||
-      !Number.isFinite(duration) ||
-      duration <= 0
-    ) {
-      throw new Error(
-        `Invalid refresh token ttl: ${String(this.refreshConfig.ttl)}`,
-      );
-    }
-
-    return Math.floor(duration / 1000);
-  }
-
-  get cookieMaxAgeSeconds(): number {
-    return this.refreshTtlSeconds;
-  }
-
-  private getPrefixSecret(): string {
-    if (!this.refreshConfig.prefixSecret) {
-      throw new Error('REFRESH_PREFIX_SECRET is not set');
-    }
-    return this.refreshConfig.prefixSecret;
+    return this.refreshConfig.ttlSeconds;
   }
 
   private getTokenPrefix(token: string) {
-    return createHmac('sha256', this.getPrefixSecret())
+    return createHmac('sha256', this.refreshConfig.prefixSecret)
       .update(token)
       .digest('hex')
       .slice(0, 8);

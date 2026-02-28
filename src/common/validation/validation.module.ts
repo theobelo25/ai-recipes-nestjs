@@ -15,7 +15,7 @@ export class ValidationModule {
       .getHttpAdapter()
       .getInstance()
       .setValidatorCompiler(({ schema }) => {
-        return this.validationService.getInstance().compile(schema);
+        return this.validationService.compileSchema(schema);
       });
   }
 }

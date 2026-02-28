@@ -3,8 +3,8 @@ import {
   Controller,
   HttpCode,
   HttpStatus,
+  InternalServerErrorException,
   Post,
-  Req,
   Res,
   UseGuards,
 } from '@nestjs/common';
@@ -14,7 +14,7 @@ import {
   signinSchema,
 } from './types/auth.schema';
 import { RouteSchema } from '@nestjs/platform-fastify';
-import { type FastifyReply, type FastifyRequest } from 'fastify';
+import { type FastifyReply } from 'fastify';
 import { LocalAuthGuard } from './guards/local-auth/local-auth.guard';
 import { User } from './decorators/user.decorator';
 import { type RequestUser } from './interfaces/request-user.interface';
@@ -24,10 +24,15 @@ import { Throttle } from '@nestjs/throttler';
 import { RefreshToken } from './decorators/refresh-token.decorator';
 import { RefreshRotateGuard } from './guards/refresh-rotate/refresh-rotate.guard';
 import { AuthFlowService } from './authFlow/auth-flow.service';
+import { AuthCookiesService } from './cookies/auth-cookies.service';
+import { RotatedRefreshToken } from './decorators/rotated-refresh.decorator';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authFlowService: AuthFlowService) {}
+  constructor(
+    private readonly authFlowService: AuthFlowService,
+    private readonly authCookiesService: AuthCookiesService,
+  ) {}
 
   @HttpCode(HttpStatus.OK)
   @UseGuards(OriginGuard)
@@ -66,9 +71,16 @@ export class AuthController {
   @Public()
   @Post('refresh')
   @Throttle({ default: { ttl: 60_000, limit: 30 } }) // 30/min
-  async refresh(@Req() req: FastifyRequest) {
-    const userId = req.auth!.userId;
-    return await this.authFlowService.updateAccessTokenOnRefresh(userId);
+  async refresh(
+    @User() { id }: RequestUser,
+    @RotatedRefreshToken() nextRaw: string | undefined,
+    @Res({ passthrough: true }) reply: FastifyReply,
+  ) {
+    if (!nextRaw)
+      throw new InternalServerErrorException('Rotated refresh token missing.');
+
+    this.authCookiesService.setRefresh(reply, nextRaw);
+    return await this.authFlowService.updateAccessTokenOnRefresh(id);
   }
 
   @HttpCode(HttpStatus.OK)

@@ -10,7 +10,7 @@ import { ValidationExceptionFilter } from './common/filters/validation-exception
 import { ConfigService } from '@nestjs/config';
 import fastifyCookie from '@fastify/cookie';
 import helmet from '@fastify/helmet';
-import { helmetConfig, corsConfig, jwtConfig } from './config/';
+import { helmetConfig, corsConfig, cookieConfig } from './config/';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -23,7 +23,7 @@ async function bootstrap() {
   const port = configService.get<number>('APP_PORT')!;
 
   // Register cookie for jwt
-  await app.register(fastifyCookie, jwtConfig);
+  await app.register(fastifyCookie, cookieConfig);
 
   // Apply Global Filters
   const httpAdapter = app.get(HttpAdapterHost);

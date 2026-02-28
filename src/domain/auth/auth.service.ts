@@ -4,8 +4,8 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { HashingService } from './hashing/hashing.service';
-import { UsersService } from '../users/users.service';
-import { CreateUserDto } from '../users/dtos/createUser.dto';
+import { UsersService } from 'src/domain/users/users.service';
+import { CreateUserDto } from 'src/domain/users/dtos/createUser.dto';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { RequestUser } from './interfaces/request-user.interface';

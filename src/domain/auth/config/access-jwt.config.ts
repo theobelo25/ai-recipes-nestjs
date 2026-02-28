@@ -3,7 +3,7 @@ import { JwtModuleOptions } from '@nestjs/jwt';
 import { StringValue } from 'ms';
 import { env } from 'src/env/env';
 
-export default registerAs('jwt', () => {
+export const accessJwtConfig = registerAs('accessJwt', () => {
   const config = {
     secret: env.JWT_SECRET,
     signOptions: {
@@ -12,5 +12,8 @@ export default registerAs('jwt', () => {
       audience: env.JWT_AUDIENCE,
     },
   } as const satisfies JwtModuleOptions;
+
   return config;
 });
+
+export type AccessJwtConfig = ReturnType<typeof accessJwtConfig>;

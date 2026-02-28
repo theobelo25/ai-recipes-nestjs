@@ -7,10 +7,8 @@ import {
   Patch,
   Post,
   Put,
-  UseGuards,
 } from '@nestjs/common';
 import { RecipesService } from './recipes.service';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
 import { type RequestUser } from '../auth/interfaces/request-user.interface';
 import { User } from '../auth/decorators/user.decorator';
 import {
@@ -21,10 +19,18 @@ import {
   ReplaceRecipeIngredientsSchema,
 } from './types/recipes.schema';
 import { RouteSchema } from '@nestjs/platform-fastify';
+import { type GenerateRecipeDto } from './types/generate-recipe.schema';
 
 @Controller('recipes')
 export class RecipesController {
   constructor(private readonly recipesService: RecipesService) {}
+
+  @Post('generate')
+  generateRecipe(@Body() generateRecipeDto: GenerateRecipeDto) {
+    return this.recipesService.generateRecipeFromIngredients(
+      generateRecipeDto.ingredients,
+    );
+  }
 
   @Get()
   listPublic() {
@@ -36,14 +42,12 @@ export class RecipesController {
     return this.recipesService.getBySlug(slug);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post()
   @RouteSchema({ body: CreateRecipeSchema })
   create(@User() user: RequestUser, @Body() createRecipeDto: CreateRecipeDto) {
     return this.recipesService.create(user.id, createRecipeDto);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Patch(':id')
   @RouteSchema({ body: UpdateRecipeSchema })
   update(
@@ -53,13 +57,12 @@ export class RecipesController {
   ) {
     return this.recipesService.update(user.id, id, updateRecipeDto);
   }
-  @UseGuards(JwtAuthGuard)
+
   @Delete(':id')
   remove(@User() user: RequestUser, @Param('id') id: string) {
     return this.recipesService.remove(user.id, id);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Put(':id/ingredients')
   @RouteSchema({ body: ReplaceRecipeIngredientsSchema })
   replaceIngredients(

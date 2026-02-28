@@ -4,30 +4,25 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import type { FastifyReply, FastifyRequest } from 'fastify';
+import type { FastifyRequest } from 'fastify';
 
-import { RefreshTokenService } from '../../refreshToken/refresh-tokens.service.js';
-import { AuthCookiesService } from '../../cookies/auth-cookies.service.js';
-import { REFRESH_COOKIE } from '../../types/auth.contants.js';
+import { RefreshTokenService } from '../../refreshToken/refresh-tokens.service';
+import { REFRESH_COOKIE } from '../../types/auth.constants';
 
 @Injectable()
 export class RefreshRotateGuard implements CanActivate {
-  constructor(
-    private readonly refreshTokenService: RefreshTokenService,
-    private readonly cookies: AuthCookiesService,
-  ) {}
+  constructor(private readonly refreshTokenService: RefreshTokenService) {}
 
   async canActivate(ctx: ExecutionContext): Promise<boolean> {
     const req = ctx.switchToHttp().getRequest<FastifyRequest>();
-    const reply = ctx.switchToHttp().getResponse<FastifyReply>();
 
     const raw = req.cookies?.[REFRESH_COOKIE];
-    if (!raw) throw new UnauthorizedException('Unauthorized.');
+    if (!raw) throw new UnauthorizedException('Missing refresh token.');
 
     const { userId, nextRaw } = await this.refreshTokenService.rotate(raw);
 
-    this.cookies.setRefresh(reply, nextRaw);
-    req.auth = { userId };
+    req.user = { id: userId };
+    req.refreshToken = nextRaw;
 
     return true;
   }

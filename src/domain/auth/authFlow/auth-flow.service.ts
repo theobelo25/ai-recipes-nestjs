@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { AuthService } from '../auth.service';
 import { UsersService } from 'src/domain/users/users.service';
 import { AuthCookiesService } from '../cookies/auth-cookies.service';
-import { RefreshTokenService } from '../refreshToken/refresh-tokens.service.js';
+import { RefreshTokenService } from '../refreshToken/refresh-tokens.service';
 import { CreateUserDto } from 'src/domain/users/dtos/createUser.dto';
 import { FastifyReply } from 'fastify';
 
