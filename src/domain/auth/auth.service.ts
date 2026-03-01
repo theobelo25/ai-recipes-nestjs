@@ -1,42 +1,31 @@
-import {
-  ConflictException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { HashingService } from './hashing/hashing.service';
 import { UsersService } from 'src/domain/users/users.service';
-import { CreateUserDto } from 'src/domain/users/dtos/createUser.dto';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { RequestUser } from './interfaces/request-user.interface';
+import { ChangePasswordDto, SignupDto } from './types/auth.schema';
+import { type UnitOfWork } from 'src/common/db/unit-of-work';
+import { AuthRepository } from './infrastructure/auth.repository';
+import { UNIT_OF_WORK } from 'src/prisma/types/db.type';
 
 @Injectable()
 export class AuthService {
   constructor(
+    private readonly authRepository: AuthRepository,
+    @Inject(UNIT_OF_WORK) private readonly uow: UnitOfWork,
     private readonly usersService: UsersService,
     private readonly hashingService: HashingService,
     private readonly jwtService: JwtService,
   ) {}
 
-  async signup(createUserDto: CreateUserDto) {
-    const { email, password } = createUserDto;
-
-    const existingUser = await this.usersService.findOneByEmail(email);
-    if (existingUser)
-      throw new ConflictException(
-        'A user with this email address already exists.',
-      );
-
-    const hashedPassword = await this.hashingService.hash(password);
-
-    return await this.usersService.create({
-      ...createUserDto,
-      password: hashedPassword,
-    });
+  async signup(signupDto: SignupDto) {
+    const hashedPassword = await this.hashingService.hash(signupDto.password);
+    return this.usersService.createUser(signupDto, hashedPassword);
   }
 
   async validateLocal(email: string, password: string) {
-    const user = await this.usersService.findOneByEmail(email);
+    const user = await this.usersService.findPrivateUserByEmail(email);
     if (!user) throw new UnauthorizedException('Invalid credentials.');
 
     const isMatch = await this.hashingService.compare(password, user.password);
@@ -47,10 +36,10 @@ export class AuthService {
   }
 
   async validateJwt({ sub }: JwtPayload) {
-    const user = await this.usersService.findOneById(sub);
+    const user = await this.usersService.findPrivateUserById(sub);
     if (!user) throw new UnauthorizedException('Invalid token.');
 
-    const requestUser: RequestUser = { id: sub };
+    const requestUser: RequestUser = { id: user.id };
     return requestUser;
   }
 
@@ -60,5 +49,34 @@ export class AuthService {
     if (!accessToken) throw new UnauthorizedException('Problem signing token.');
 
     return accessToken;
+  }
+
+  async changePassword(id: string, changePassword: ChangePasswordDto) {
+    const { oldPassword, newPassword } = changePassword;
+
+    const user = await this.usersService.findPrivateUserById(id);
+
+    const passwordMatches = await this.hashingService.compare(
+      oldPassword,
+      user.password,
+    );
+    if (!passwordMatches)
+      throw new UnauthorizedException('User not authorized.');
+
+    const newHashedPassword = await this.hashingService.hash(newPassword);
+
+    let updatedUser;
+
+    await this.uow.transaction(async (tx) => {
+      updatedUser = await this.usersService.updatePassword(
+        id,
+        newHashedPassword,
+        tx,
+      );
+
+      await this.authRepository.revokeAllUserRefreshTokens(id, tx);
+    });
+
+    return updatedUser;
   }
 }

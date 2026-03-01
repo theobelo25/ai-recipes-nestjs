@@ -71,3 +71,39 @@ export const signupSchema = Type.Object(
 );
 
 export type SignupDto = Static<typeof signupSchema>;
+
+export const ChangePasswordSchema = Type.Object(
+  {
+    oldPassword: Type.String({ minLength: 8 }),
+    newPassword: Type.String({
+      transform: ['trim'],
+      minLength: 8,
+      maxLength: 32,
+      pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*]).{8,32}$',
+    }),
+    confirmNewPassword: Type.String({
+      transform: ['trim'],
+      const: { $data: '1/password' },
+    }),
+  },
+  {
+    required: ['oldPassword', 'newPassword', 'confirmNewPassword'],
+    additionalProperties: false,
+    errorMessage: {
+      properties: {
+        newPassword:
+          'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character from the following !@#$%^&*.',
+        confirmPassword: 'confirmPassword must match password exactly',
+      },
+      required: {
+        username: 'Username is required.',
+        oldPassword: 'Old password is required.',
+        newPassword: 'New password is required.',
+        confirmNewPassword: 'Password confirmation is required.',
+      },
+      additionalProperties: 'No additional properties are allowed.',
+    },
+  },
+);
+
+export type ChangePasswordDto = Static<typeof ChangePasswordSchema>;

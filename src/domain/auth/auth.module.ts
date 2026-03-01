@@ -17,6 +17,8 @@ import { refreshTokenConfig } from './config/refresh-token.config';
 import { AuthCookiesService } from './cookies/auth-cookies.service';
 import { RefreshTokenService } from './refreshToken/refresh-tokens.service';
 import { AuthFlowService } from './authFlow/auth-flow.service';
+import { AuthRepository } from './infrastructure/auth.repository';
+import { UNIT_OF_WORK } from 'src/prisma/types/db.type';
 
 @Module({
   imports: [
@@ -39,6 +41,7 @@ import { AuthFlowService } from './authFlow/auth-flow.service';
     AuthFlowService,
     AuthCookiesService,
     RefreshTokenService,
+    AuthRepository,
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,

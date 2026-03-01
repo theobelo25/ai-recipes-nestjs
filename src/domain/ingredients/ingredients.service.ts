@@ -1,59 +1,44 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
 import {
   CreateIngredientDto,
   UpdateIngredientDto,
 } from './types/ingredient.schema';
 import { slugify } from 'src/common/utils/slugify';
-import { TransactionClient } from 'src/prisma/generated/internal/prismaNamespace';
-import { IngredientCategory } from 'src/prisma/generated/enums';
+import { Prisma } from 'src/prisma/generated/client';
+import { IngredientsRepository } from './infrastructure/ingredients.repository';
 
 @Injectable()
 export class IngredientsService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly ingredientsRepository: IngredientsRepository) {}
 
   async create(createIngredientDto: CreateIngredientDto) {
     const slug = slugify(createIngredientDto.name);
-
-    return await this.prismaService.ingredient.create({
-      data: { ...createIngredientDto, slug },
-    });
+    return this.ingredientsRepository.create(createIngredientDto, slug);
   }
 
   async findAll() {
-    return await this.prismaService.ingredient.findMany({
-      orderBy: { name: 'asc' },
-    });
+    return this.ingredientsRepository.findAll();
   }
 
-  async findBySlug(slug: string) {
-    return await this.prismaService.ingredient.findUniqueOrThrow({
-      where: { slug },
-    });
+  async findOneBySlug(slug: string) {
+    return this.ingredientsRepository.findOneBySlug(slug);
   }
 
-  async update(id: string, data: UpdateIngredientDto) {
-    return await this.prismaService.ingredient.update({ where: { id }, data });
+  async updateBySlug(slug: string, updateIngredientDto: UpdateIngredientDto) {
+    return this.ingredientsRepository.updateBySlug(slug, updateIngredientDto);
   }
 
-  async remove(id: string) {
-    return this.prismaService.ingredient.delete({
-      where: { id },
-    });
+  async removeBySlug(slug: string) {
+    return this.ingredientsRepository.removeBySlug(slug);
   }
 
-  async upsertBySlug(
-    tx: TransactionClient,
-    input: { name: string; slug: string; category?: IngredientCategory },
+  async ensureByName(
+    input: { name: string },
+    opts?: { db?: Prisma.TransactionClient },
   ) {
-    const { slug, name, category } = input;
+    const name = input.name.trim();
+    const slug = slugify(name);
 
-    return await tx.ingredient.upsert({
-      where: { slug },
-      create: { name, slug, category },
-      update: {
-        ...(category !== undefined ? { category } : {}),
-      },
-    });
+    return this.ingredientsRepository.ensureByName(name, slug, opts);
   }
 }

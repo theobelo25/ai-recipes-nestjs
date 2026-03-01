@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { PantryService } from './pantry.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
@@ -45,14 +46,17 @@ export class PantryController {
   @RouteSchema({ body: UpdatePantryItemSchema })
   update(
     @User() user: RequestUser,
-    @Param('id') id: string,
+    @Param('id', new ParseUUIDPipe()) id: string,
     @Body() updatePantryItemDto: UpdatePantryItemDto,
   ) {
     return this.pantryService.update(user.id, id, updatePantryItemDto);
   }
 
   @Delete(':id')
-  remove(@User() user: RequestUser, @Param('id') id: string) {
+  remove(
+    @User() user: RequestUser,
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ) {
     return this.pantryService.remove(user.id, id);
   }
 }

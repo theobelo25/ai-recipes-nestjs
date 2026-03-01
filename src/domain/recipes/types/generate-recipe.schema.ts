@@ -1,8 +1,14 @@
 // src/domains/recipes/dto/generate-recipe.dto.ts
-import { z } from 'zod';
+import { Type, Static } from '@sinclair/typebox';
 
-export const generateRecipeSchema = z.object({
-  ingredients: z.array(z.string().trim().min(1).max(100)).min(1).max(20),
-});
+export const GenerateRecipeSchema = Type.Object(
+  {
+    ingredients: Type.Array(Type.String({ minLength: 1, maxLength: 100 }), {
+      minItems: 1,
+      maxItems: 20,
+    }),
+  },
+  { additionalProperties: false },
+);
 
-export type GenerateRecipeDto = z.infer<typeof generateRecipeSchema>;
+export type GenerateRecipeDto = Static<typeof GenerateRecipeSchema>;

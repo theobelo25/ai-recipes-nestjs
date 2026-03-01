@@ -1,41 +1,23 @@
-import { Body, Controller, Patch, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Patch } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from '../auth/decorators/user.decorator';
 import { type RequestUser } from '../auth/interfaces/request-user.interface';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
-import { UpdateUserDto } from './dtos/updateUser.dto';
-import { ChangePasswordDto } from './dtos/changePassword.dto';
-
-import type { FastifyReply } from 'fastify';
-
-import { AuthCookiesService } from '../auth/cookies/auth-cookies.service';
+import { RouteSchema } from '@nestjs/platform-fastify';
+import {
+  type UpdateProfileDto,
+  UpdateProfileSchema,
+} from './types/users.schema';
 
 @Controller('users')
 export class UsersController {
-  constructor(
-    private readonly cookiesService: AuthCookiesService,
-    private readonly usersService: UsersService,
-  ) {}
+  constructor(private readonly usersService: UsersService) {}
 
-  @UseGuards(JwtAuthGuard)
-  @Patch('edit-profile')
+  @Patch('me')
+  @RouteSchema({ body: UpdateProfileSchema })
   async editProfile(
     @User() { id }: RequestUser,
-    @Body() { username }: UpdateUserDto,
+    @Body() updateProfileDto: UpdateProfileDto,
   ) {
-    const user = await this.usersService.updateUser({ id, username });
-    return user;
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Patch('change-password')
-  async changePassword(
-    @User() { id }: RequestUser,
-    @Body() changePasswordDto: ChangePasswordDto,
-    @Res({ passthrough: true }) reply: FastifyReply,
-  ) {
-    const user = await this.usersService.changePassword(id, changePasswordDto);
-    this.cookiesService.clearRefresh(reply);
-    return user;
+    return this.usersService.updateUser(id, updateProfileDto);
   }
 }

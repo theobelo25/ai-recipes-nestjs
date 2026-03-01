@@ -1,28 +1,19 @@
-import { forwardRef, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
-import { HashingService } from '../auth/hashing/hashing.service';
-import { Argon2Service } from '../auth/hashing/argon2.service';
-import { AuthModule } from '../auth/auth.module';
-import { AuthService } from '../auth/auth.service';
-import { ConfigModule } from '@nestjs/config';
-import { JwtModule } from '@nestjs/jwt';
-import { refreshTokenConfig } from '../auth/config/refresh-token.config';
-import { AuthCookiesService } from '../auth/cookies/auth-cookies.service';
+import { UsersRepository } from './infrastructure/users.repository';
+import { PrismaModule } from 'src/prisma/prisma.module';
+import { USERS_REPOSITORY } from './infrastructure/users.repository.port';
 
 @Module({
-  imports: [
-    ConfigModule,
-    forwardRef(() => AuthModule),
-    JwtModule,
-    ConfigModule.forFeature(refreshTokenConfig),
-  ],
+  imports: [PrismaModule],
   controllers: [UsersController],
   providers: [
     UsersService,
-    { provide: HashingService, useClass: Argon2Service },
-    AuthService,
-    AuthCookiesService,
+    {
+      provide: USERS_REPOSITORY,
+      useClass: UsersRepository,
+    },
   ],
   exports: [UsersService],
 })

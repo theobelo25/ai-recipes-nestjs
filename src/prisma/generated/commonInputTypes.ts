@@ -189,23 +189,6 @@ export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedStringNullableFilter<$PrismaModel>
 }
 
-export type EnumIngredientCategoryNullableFilter<$PrismaModel = never> = {
-  equals?: $Enums.IngredientCategory | Prisma.EnumIngredientCategoryFieldRefInput<$PrismaModel> | null
-  in?: $Enums.IngredientCategory[] | Prisma.ListEnumIngredientCategoryFieldRefInput<$PrismaModel> | null
-  notIn?: $Enums.IngredientCategory[] | Prisma.ListEnumIngredientCategoryFieldRefInput<$PrismaModel> | null
-  not?: Prisma.NestedEnumIngredientCategoryNullableFilter<$PrismaModel> | $Enums.IngredientCategory | null
-}
-
-export type EnumIngredientCategoryNullableWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.IngredientCategory | Prisma.EnumIngredientCategoryFieldRefInput<$PrismaModel> | null
-  in?: $Enums.IngredientCategory[] | Prisma.ListEnumIngredientCategoryFieldRefInput<$PrismaModel> | null
-  notIn?: $Enums.IngredientCategory[] | Prisma.ListEnumIngredientCategoryFieldRefInput<$PrismaModel> | null
-  not?: Prisma.NestedEnumIngredientCategoryNullableWithAggregatesFilter<$PrismaModel> | $Enums.IngredientCategory | null
-  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumIngredientCategoryNullableFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumIngredientCategoryNullableFilter<$PrismaModel>
-}
-
 export type FloatNullableFilter<$PrismaModel = never> = {
   equals?: number | Prisma.FloatFieldRefInput<$PrismaModel> | null
   in?: number[] | Prisma.ListFloatFieldRefInput<$PrismaModel> | null
@@ -469,23 +452,6 @@ export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedStringNullableFilter<$PrismaModel>
   _max?: Prisma.NestedStringNullableFilter<$PrismaModel>
-}
-
-export type NestedEnumIngredientCategoryNullableFilter<$PrismaModel = never> = {
-  equals?: $Enums.IngredientCategory | Prisma.EnumIngredientCategoryFieldRefInput<$PrismaModel> | null
-  in?: $Enums.IngredientCategory[] | Prisma.ListEnumIngredientCategoryFieldRefInput<$PrismaModel> | null
-  notIn?: $Enums.IngredientCategory[] | Prisma.ListEnumIngredientCategoryFieldRefInput<$PrismaModel> | null
-  not?: Prisma.NestedEnumIngredientCategoryNullableFilter<$PrismaModel> | $Enums.IngredientCategory | null
-}
-
-export type NestedEnumIngredientCategoryNullableWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.IngredientCategory | Prisma.EnumIngredientCategoryFieldRefInput<$PrismaModel> | null
-  in?: $Enums.IngredientCategory[] | Prisma.ListEnumIngredientCategoryFieldRefInput<$PrismaModel> | null
-  notIn?: $Enums.IngredientCategory[] | Prisma.ListEnumIngredientCategoryFieldRefInput<$PrismaModel> | null
-  not?: Prisma.NestedEnumIngredientCategoryNullableWithAggregatesFilter<$PrismaModel> | $Enums.IngredientCategory | null
-  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumIngredientCategoryNullableFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumIngredientCategoryNullableFilter<$PrismaModel>
 }
 
 export type NestedFloatNullableFilter<$PrismaModel = never> = {

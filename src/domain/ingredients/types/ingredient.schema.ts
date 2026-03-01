@@ -1,11 +1,8 @@
 import { Type, Static } from '@sinclair/typebox';
-import { IngredientCategory } from 'src/prisma/generated/enums';
 
 export const createIngredientSchema = Type.Object(
   {
-    name: Type.String({ maxLength: 100 }),
-    description: Type.Optional(Type.String({ maxLength: 500 })),
-    category: Type.Optional(Type.Enum(IngredientCategory)),
+    name: Type.String({ minLength: 1, maxLength: 100 }),
   },
   {
     required: ['name'],

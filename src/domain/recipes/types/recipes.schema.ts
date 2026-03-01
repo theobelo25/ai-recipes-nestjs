@@ -45,6 +45,9 @@ export const UpdateRecipeSchema = Type.Partial(CreateRecipeSchema, {
   minProperties: 1,
 });
 
+export type ReplaceRecipeIngredientsDto = Static<
+  typeof ReplaceRecipeIngredientsSchema
+>;
 export type CreateRecipeDto = Static<typeof CreateRecipeSchema>;
 export type UpdateRecipeDto = Static<typeof UpdateRecipeSchema>;
 export type RecipeIngredientInputDto = Static<

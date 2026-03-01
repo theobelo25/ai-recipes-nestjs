@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common';
 import { PantryService } from './pantry.service';
 import { PantryController } from './pantry.controller';
-import { IngredientsService } from '../ingredients/ingredients.service';
+import { IngredientsModule } from '../ingredients/ingredients.module';
+import { PantryRepository } from './infrastructure/pantry.repository';
 
 @Module({
+  imports: [IngredientsModule],
   controllers: [PantryController],
-  providers: [PantryService, IngredientsService],
+  providers: [PantryService, PantryRepository],
 })
 export class PantryModule {}

@@ -33,20 +33,20 @@ export class IngredientsController {
 
   @Get(':slug')
   findOne(@Param('slug') slug: string) {
-    return this.ingredientsService.findBySlug(slug);
+    return this.ingredientsService.findOneBySlug(slug);
   }
 
-  @Patch(':id')
+  @Patch(':slug')
   @RouteSchema({ body: updateIngredientSchema })
   update(
-    @Param('id') id: string,
+    @Param('slug') slug: string,
     @Body() updateIngredientDto: UpdateIngredientDto,
   ) {
-    return this.ingredientsService.update(id, updateIngredientDto);
+    return this.ingredientsService.updateBySlug(slug, updateIngredientDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.ingredientsService.remove(id);
+  @Delete(':slug')
+  remove(@Param('slug') slug: string) {
+    return this.ingredientsService.removeBySlug(slug);
   }
 }

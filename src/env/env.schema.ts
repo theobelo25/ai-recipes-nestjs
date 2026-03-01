@@ -1,4 +1,4 @@
-import { AI_PROVIDER_KEYS } from 'src/domain/ai/providers/provider.keys';
+import { AI_PROVIDER_KEYS } from '../domain/ai/providers/provider.keys';
 import { z } from 'zod';
 
 export const envSchema = z.object({

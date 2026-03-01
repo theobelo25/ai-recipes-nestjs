@@ -4,6 +4,7 @@ import {
   HttpCode,
   HttpStatus,
   InternalServerErrorException,
+  Patch,
   Post,
   Res,
   UseGuards,
@@ -12,6 +13,8 @@ import {
   signupSchema,
   type SignupDto,
   signinSchema,
+  ChangePasswordSchema,
+  type ChangePasswordDto,
 } from './types/auth.schema';
 import { RouteSchema } from '@nestjs/platform-fastify';
 import { type FastifyReply } from 'fastify';
@@ -26,12 +29,14 @@ import { RefreshRotateGuard } from './guards/refresh-rotate/refresh-rotate.guard
 import { AuthFlowService } from './authFlow/auth-flow.service';
 import { AuthCookiesService } from './cookies/auth-cookies.service';
 import { RotatedRefreshToken } from './decorators/rotated-refresh.decorator';
+import { AuthService } from './auth.service';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authFlowService: AuthFlowService,
     private readonly authCookiesService: AuthCookiesService,
+    private readonly authService: AuthService,
   ) {}
 
   @HttpCode(HttpStatus.OK)
@@ -44,13 +49,7 @@ export class AuthController {
     @Body() signupDto: SignupDto,
     @Res({ passthrough: true }) reply: FastifyReply,
   ) {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { confirmPassword, ...createUserDto } = signupDto;
-
-    return await this.authFlowService.signUpAndIssueTokens(
-      createUserDto,
-      reply,
-    );
+    return await this.authFlowService.signUpAndIssueTokens(signupDto, reply);
   }
 
   @HttpCode(HttpStatus.OK)
@@ -96,5 +95,17 @@ export class AuthController {
       incomingRefreshToken,
       reply,
     );
+  }
+
+  @Patch('change-password')
+  @RouteSchema({ body: ChangePasswordSchema })
+  async changePassword(
+    @User() { id }: RequestUser,
+    @Body() changePasswordDto: ChangePasswordDto,
+    @Res({ passthrough: true }) reply: FastifyReply,
+  ) {
+    const user = await this.authService.changePassword(id, changePasswordDto);
+    this.authCookiesService.clearRefresh(reply);
+    return user;
   }
 }

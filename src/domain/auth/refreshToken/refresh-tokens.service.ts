@@ -1,16 +1,21 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { type ConfigType } from '@nestjs/config';
-
-import { PrismaService } from 'src/prisma/prisma.service';
 import { HashingService } from '../hashing/hashing.service';
-
 import { randomBytes, createHmac } from 'node:crypto';
 import { refreshTokenConfig } from '../config/refresh-token.config';
+import { AuthRepository } from '../infrastructure/auth.repository';
+import {
+  CreateRefreshTokenDTO,
+  ReplaceRefreshTokenDTO,
+} from '../types/refresh-token.dtos';
+import { type UnitOfWork } from 'src/common/db/unit-of-work';
+import { UNIT_OF_WORK } from 'src/prisma/types/db.type';
 
 @Injectable()
 export class RefreshTokenService {
   constructor(
-    private readonly prismaService: PrismaService,
+    @Inject(UNIT_OF_WORK) private readonly uow: UnitOfWork,
+    private readonly authRepository: AuthRepository,
     private readonly hashingService: HashingService,
     @Inject(refreshTokenConfig.KEY)
     private readonly refreshConfig: ConfigType<typeof refreshTokenConfig>,
@@ -33,39 +38,25 @@ export class RefreshTokenService {
 
   async issueInitial(userId: string): Promise<string> {
     const raw = this.generateRefreshToken();
-    const tokenPrefix = this.getTokenPrefix(raw);
-    const tokenHash = await this.hashingService.hash(raw);
-    const expiresAt = new Date(Date.now() + this.refreshTtlSeconds * 1000);
+    const createRefreshTokenDTO: CreateRefreshTokenDTO = {
+      userId,
+      tokenHash: await this.hashingService.hash(raw),
+      tokenPrefix: this.getTokenPrefix(raw),
+      expiresAt: new Date(Date.now() + this.refreshTtlSeconds * 1000),
+    };
 
-    await this.prismaService.refreshToken.create({
-      data: { userId, tokenHash, tokenPrefix, expiresAt },
-    });
+    await this.authRepository.createRefreshToken(createRefreshTokenDTO);
 
     return raw;
   }
 
   private async findByRaw(raw: string, opts?: { includeRevoked?: boolean }) {
     const tokenPrefix = this.getTokenPrefix(raw);
-    const now = new Date();
 
-    const candidates = await this.prismaService.refreshToken.findMany({
-      where: {
-        tokenPrefix,
-        expiresAt: { gte: now },
-        ...(opts?.includeRevoked ? {} : { revokedAt: null }),
-      },
-      select: {
-        id: true,
-        userId: true,
-        tokenHash: true,
-        revokedAt: true,
-        expiresAt: true,
-        replacedById: true,
-        createdAt: true,
-      },
-      orderBy: { createdAt: 'desc' },
-      take: 25,
-    });
+    const candidates = await this.authRepository.findByTokenPrefix(
+      tokenPrefix,
+      opts,
+    );
 
     for (const c of candidates) {
       if (await this.hashingService.compare(raw, c.tokenHash)) return c;
@@ -75,61 +66,43 @@ export class RefreshTokenService {
   }
 
   async rotate(raw: string) {
-    const now = new Date();
     const matched = await this.findByRaw(raw, {
       includeRevoked: true,
     });
     if (!matched) throw new UnauthorizedException('Invalid refresh token');
-
-    // reuse detection
     if (matched.revokedAt) {
-      await this.prismaService.refreshToken.updateMany({
-        where: { userId: matched.userId, revokedAt: null },
-        data: { revokedAt: now },
-      });
+      await this.authRepository.revokeAllUserRefreshTokens(matched.userId);
       throw new UnauthorizedException('Refresh token reuse detected');
     }
 
-    return this.prismaService.$transaction(async (tx) => {
-      const current = await tx.refreshToken.findFirst({
-        where: { id: matched.id },
-        select: { id: true, userId: true, revokedAt: true, expiresAt: true },
-      });
+    const nextRaw = this.generateRefreshToken();
 
-      if (!current || current.expiresAt <= now) {
-        throw new UnauthorizedException('Invalid refresh token');
-      }
-      if (current.revokedAt) {
-        throw new UnauthorizedException('Refresh token already used');
-      }
+    const createRefreshTokenDTO: CreateRefreshTokenDTO = {
+      userId: matched.userId,
+      tokenHash: await this.hashingService.hash(nextRaw),
+      tokenPrefix: this.getTokenPrefix(nextRaw),
+      expiresAt: new Date(Date.now() + this.refreshTtlSeconds * 1000),
+    };
 
-      const nextRaw = this.generateRefreshToken();
-      const nextPrefix = this.getTokenPrefix(nextRaw);
-      const nextHash = await this.hashingService.hash(nextRaw);
-      const nextExpiresAt = new Date(
-        now.getTime() + this.refreshTtlSeconds * 1000,
+    return this.uow.transaction(async (tx) => {
+      const next = await this.authRepository.createRefreshToken(
+        createRefreshTokenDTO,
+        tx,
+      );
+      const now = new Date();
+
+      const replaceRefreshTokenDTO: ReplaceRefreshTokenDTO = {
+        currentId: matched.id,
+        replacedById: next.id,
+        now,
+      };
+
+      await this.authRepository.markRefreshTokenReplaced(
+        replaceRefreshTokenDTO,
+        tx,
       );
 
-      const next = await tx.refreshToken.create({
-        data: {
-          userId: current.userId,
-          tokenHash: nextHash,
-          tokenPrefix: nextPrefix,
-          expiresAt: nextExpiresAt,
-        },
-        select: { id: true },
-      });
-
-      await tx.refreshToken.update({
-        where: { id: current.id },
-        data: {
-          revokedAt: now,
-          lastUsedAt: now,
-          replacedById: next.id,
-        },
-      });
-
-      return { userId: current.userId, nextRaw };
+      return { userId: matched.userId, nextRaw };
     });
   }
 
@@ -139,9 +112,6 @@ export class RefreshTokenService {
     });
     if (!matched) return;
 
-    await this.prismaService.refreshToken.updateMany({
-      where: { id: matched.id, revokedAt: null },
-      data: { revokedAt: new Date() },
-    });
+    await this.authRepository.revokeRefreshToken(matched.id);
   }
 }

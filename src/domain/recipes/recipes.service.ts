@@ -3,159 +3,108 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateRecipeDto, UpdateRecipeDto } from './types/recipes.schema';
+import {
+  CreateRecipeDto,
+  RecipeIngredientInputDto,
+  UpdateRecipeDto,
+} from './types/recipes.schema';
 import { slugify } from 'src/common/utils/slugify';
-import { AiService } from '../ai/ai.service';
-import { RecipeResponseSchema } from '../ai/types';
-import { RecipeAIResponse } from './types/recipes.schema';
+import { RecipesRepository } from './infrastructure/recipes.repository';
+import { RecipeGeneratorService } from './ai/recipe-generator.service';
+import { Prisma } from 'src/prisma/generated/client';
+import { RecipeWithRelations } from './types/recipes.types';
 
 @Injectable()
 export class RecipesService {
   constructor(
-    private readonly prismaService: PrismaService,
-    private readonly aiService: AiService,
+    private readonly recipesRepo: RecipesRepository,
+    private readonly recipeGenerator: RecipeGeneratorService,
   ) {}
 
-  async generateRecipeFromIngredients(ingredients: string[]) {
-    const prompt = `Create a recipe using these ingredients: ${ingredients.join(', ')}.`;
-    const system = `Return ONLY valid JSON matching the provided schema. No prose.`;
-
-    return this.aiService.generateJson<RecipeAIResponse>({
-      prompt,
-      schema: RecipeResponseSchema,
-      system,
-    });
+  list() {
+    return this.recipesRepo.findMany();
   }
 
-  async listPublic() {
-    return this.prismaService.recipe.findMany({
-      orderBy: { updatedAt: 'desc' },
-      include: this.recipeInclude(),
-    });
+  getBySlug(slug: string): Promise<RecipeWithRelations | null> {
+    return this.recipesRepo.findBySlug(slug);
   }
 
-  async getBySlug(slug: string) {
-    const recipe = await this.prismaService.recipe.findUnique({
-      where: { slug },
-      include: this.recipeInclude(),
-    });
-    if (!recipe) throw new NotFoundException('Recipe not found.');
-    return recipe;
-  }
+  async create(
+    authorId: string,
+    dto: CreateRecipeDto,
+  ): Promise<RecipeWithRelations> {
+    const { ingredients, title, ...rest } = dto;
 
-  async create(authorId: string, createRecipeDto: CreateRecipeDto) {
-    const { title, ingredients, ...rest } = createRecipeDto;
-    const slug = slugify(title);
+    const data: Prisma.RecipeCreateInput = {
+      ...rest,
+      title,
+      slug: slugify(title),
+      author: { connect: { id: authorId } },
+    };
 
-    return this.prismaService.recipe.create({
-      data: {
-        ...rest,
-        title,
-        slug,
-        authorId,
-        ingredients: ingredients?.length
-          ? {
-              create: ingredients.map((ri) => ({
-                ...ri,
-                sortOrder: ri.sortOrder ?? 0,
-              })),
-            }
-          : undefined,
-      },
-      include: this.recipeInclude(),
-    });
+    const created = await this.recipesRepo.create(data);
+
+    if (ingredients?.length) {
+      return this.recipesRepo.replaceIngredients(created.id, ingredients);
+    }
+
+    return created;
   }
 
   async update(
     authorId: string,
     recipeId: string,
-    updateRecipeDto: UpdateRecipeDto,
-  ) {
-    const existing = await this.prismaService.recipe.findUnique({
-      where: { id: recipeId },
-      select: { id: true, authorId: true },
-    });
-    if (!existing) throw new NotFoundException('Recipe not found.');
-    if (existing.authorId && existing.authorId !== authorId)
-      throw new ForbiddenException('Not allowed');
+    dto: UpdateRecipeDto,
+  ): Promise<RecipeWithRelations> {
+    await this.assertOwner(authorId, recipeId);
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { title, ingredients, ...rest } = updateRecipeDto;
+    const { ingredients, title, ...rest } = dto;
 
-    const data = {
+    const data: Prisma.RecipeUpdateInput = {
       ...rest,
-      ...(title && { title, slug: slugify(title) }),
+      ...(title ? { title, slug: slugify(title) } : {}),
     };
 
-    return this.prismaService.recipe.update({
-      where: { id: recipeId },
-      data,
-      include: this.recipeInclude(),
-    });
+    const updated = await this.recipesRepo.update(recipeId, data);
+
+    if (ingredients) {
+      return this.recipesRepo.replaceIngredients(recipeId, ingredients);
+    }
+
+    return updated;
   }
 
   async replaceIngredients(
     authorId: string,
     recipeId: string,
-    ingredients: UpdateRecipeDto['ingredients'],
+    ingredients: RecipeIngredientInputDto[],
   ) {
-    const existing = await this.prismaService.recipe.findUnique({
-      where: { id: recipeId },
-      select: { id: true, authorId: true },
-    });
-    if (!existing) throw new NotFoundException('Recipe not found.');
-    if (existing.authorId && existing.authorId !== authorId)
-      throw new ForbiddenException('Not allowed');
+    await this.assertOwner(authorId, recipeId);
 
-    return this.prismaService.$transaction(async (tx) => {
-      await tx.recipeIngredient.deleteMany({ where: { recipeId } });
+    const updated = await this.recipesRepo.replaceIngredients(
+      recipeId,
+      ingredients,
+    );
 
-      if (ingredients?.length) {
-        await tx.recipeIngredient.createMany({
-          data: ingredients.map((ri) => ({
-            recipeId,
-            ingredientId: ri.ingredientId,
-            quantity: ri.quantity ?? null,
-            unit: ri.unit ?? null,
-            note: ri.note ?? null,
-            sortOrder: ri.sortOrder ?? 0,
-          })),
-        });
-      }
-
-      return tx.recipe.findUnique({
-        where: { id: recipeId },
-        include: this.recipeInclude(),
-      });
-    });
+    return updated;
   }
 
   async remove(authorId: string, recipeId: string) {
-    const existing = await this.prismaService.recipe.findUnique({
-      where: { id: recipeId },
-      select: { id: true, authorId: true },
-    });
-    if (!existing) throw new NotFoundException('Recipe not found');
-    if (existing.authorId && existing.authorId !== authorId) {
-      throw new ForbiddenException('Not allowed');
-    }
-
-    await this.prismaService.recipe.delete({ where: { id: recipeId } });
+    await this.assertOwner(authorId, recipeId);
+    await this.recipesRepo.delete(recipeId);
     return { ok: true };
   }
 
-  private recipeInclude() {
-    return {
-      ingredients: {
-        orderBy: { sortOrder: 'asc' as const },
-        include: {
-          ingredient: {
-            select: { id: true, name: true, slug: true, category: true },
-          },
-        },
-      },
-      author: { select: { id: true, username: true } },
-    };
+  async generateRecipeFromIngredients(ingredients: string[]) {
+    // The AI service returns a recipe payload already shaped to your schema.
+    return this.recipeGenerator.generateRecipeFromIngredients(ingredients);
+  }
+
+  private async assertOwner(authorId: string, recipeId: string) {
+    const recipe = await this.recipesRepo.findByIdMinimal(recipeId);
+    if (!recipe) throw new NotFoundException('Recipe not found.');
+    if (recipe.authorId && recipe.authorId !== authorId) {
+      throw new ForbiddenException('Not allowed');
+    }
   }
 }

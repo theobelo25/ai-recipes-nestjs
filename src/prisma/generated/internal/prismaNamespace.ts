@@ -926,7 +926,6 @@ export const IngredientScalarFieldEnum = {
   id: 'id',
   name: 'name',
   slug: 'slug',
-  category: 'category',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1035,20 +1034,6 @@ export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel
  * Reference to a field of type 'DateTime[]'
  */
 export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
-    
-
-
-/**
- * Reference to a field of type 'IngredientCategory'
- */
-export type EnumIngredientCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'IngredientCategory'>
-    
-
-
-/**
- * Reference to a field of type 'IngredientCategory[]'
- */
-export type ListEnumIngredientCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'IngredientCategory[]'>
     
 
 
