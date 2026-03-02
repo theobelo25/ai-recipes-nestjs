@@ -1,4 +1,4 @@
-export const SAFE_USER_SELECT = {
+export const PUBLIC_USER_SELECT = {
   id: true,
   username: true,
   email: true,

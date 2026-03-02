@@ -1,11 +1,13 @@
 export const RECIPE_INCLUDE = {
   ingredients: {
-    orderBy: { sortOrder: 'asc' as const },
-    include: {
-      ingredient: {
-        select: { id: true, name: true, slug: true },
-      },
+    orderBy: { sortOrder: 'asc' },
+    select: {
+      id: true,
+      ingredientId: true,
+      quantity: true,
+      unit: true,
+      note: true,
+      sortOrder: true,
     },
   },
-  author: { select: { id: true, username: true } },
 } as const;

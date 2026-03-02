@@ -105,8 +105,8 @@ model Recipe {
   sourceUrl  String?
   sourceName String?
 
-  authorId String? @db.Uuid
-  author   User?   @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  authorId String @db.Uuid
+  author   User   @relation(fields: [authorId], references: [id])
 
   ingredients RecipeIngredient[]
 

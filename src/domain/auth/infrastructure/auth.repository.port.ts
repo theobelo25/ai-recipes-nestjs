@@ -1,6 +1,5 @@
-import { Prisma, RefreshToken } from 'src/prisma/generated/client';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { Db } from 'src/prisma/types/db.type';
+import { RefreshToken } from 'src/prisma/generated/client';
+import { Db } from 'src/common/db/db.type';
 
 type CreateRefreshTokenDTO = {
   userId: string;
@@ -12,7 +11,7 @@ type CreateRefreshTokenDTO = {
 export interface AuthRepository {
   createRefreshToken(
     createRefreshTokenDTO: CreateRefreshTokenDTO,
-    db: Db,
+    db?: Db,
   ): Promise<RefreshToken>;
 
   findByTokenPrefix(tokenPrefix: string): Promise<RefreshToken[] | null>;
@@ -20,7 +19,7 @@ export interface AuthRepository {
 
   markRefreshTokenReplaced(
     data: { currentId: string; replacedById: string; now: Date },
-    db: Db,
+    db?: Db,
   ): Promise<void>;
 
   revokeAllUserRefreshTokens(): Promise<void>;

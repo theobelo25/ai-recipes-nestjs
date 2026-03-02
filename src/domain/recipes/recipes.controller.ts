@@ -9,7 +9,6 @@ import {
   Patch,
 } from '@nestjs/common';
 import { RecipesService } from './recipes.service';
-import { type RequestUser } from '../auth/interfaces/request-user.interface';
 import { User } from '../auth/decorators/user.decorator';
 import {
   CreateRecipeSchema,
@@ -53,13 +52,13 @@ export class RecipesController {
 
   @Post()
   @RouteSchema({ body: CreateRecipeSchema })
-  create(@User() user: RequestUser, @Body() createRecipeDto: CreateRecipeDto) {
-    return this.recipesService.create(user.id, createRecipeDto);
+  create(@User('id') userId: string, @Body() createRecipeDto: CreateRecipeDto) {
+    return this.recipesService.create(userId, createRecipeDto);
   }
 
   @Delete(':id')
-  remove(@User() user: RequestUser, @Param('id') id: string) {
-    return this.recipesService.remove(user.id, id);
+  remove(@User('id') userId: string, @Param('id') id: string) {
+    return this.recipesService.remove(userId, id);
   }
 
   @Patch(':id')

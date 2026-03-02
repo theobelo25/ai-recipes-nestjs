@@ -1,7 +1,7 @@
 import { Global, Module } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
 import { ConfigModule } from '@nestjs/config';
-import { UNIT_OF_WORK } from './types/db.type';
+import { UNIT_OF_WORK } from './prisma.unit-of-work';
 import { PrismaUnitOfWork } from './prisma.unit-of-work';
 
 @Global()

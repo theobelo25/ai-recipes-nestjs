@@ -1,77 +1,95 @@
-import {
-  ForbiddenException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import {
   CreateRecipeDto,
   RecipeIngredientInputDto,
   UpdateRecipeDto,
 } from './types/recipes.schema';
 import { slugify } from 'src/common/utils/slugify';
-import { RecipesRepository } from './infrastructure/recipes.repository';
 import { RecipeGeneratorService } from './ai/recipe-generator.service';
-import { Prisma } from 'src/prisma/generated/client';
-import { RecipeWithRelations } from './types/recipes.types';
+import {
+  CreateRecipeData,
+  RecipeView,
+  UpdateRecipeData,
+} from './types/recipes.types';
+import { Db } from 'src/common/db/db.type';
+import {
+  RECIPES_REPOSITORY,
+  type IRecipesRepository,
+} from './infrastructure/recipes.repository.interface';
+import { UNIT_OF_WORK, type UnitOfWork } from 'src/common/db/unit-of-work';
 
 @Injectable()
 export class RecipesService {
   constructor(
-    private readonly recipesRepo: RecipesRepository,
+    @Inject(RECIPES_REPOSITORY)
+    private readonly recipesRepository: IRecipesRepository,
     private readonly recipeGenerator: RecipeGeneratorService,
+    @Inject(UNIT_OF_WORK) private readonly uow: UnitOfWork,
   ) {}
 
   list() {
-    return this.recipesRepo.findMany();
+    return this.recipesRepository.findMany();
   }
 
-  getBySlug(slug: string): Promise<RecipeWithRelations | null> {
-    return this.recipesRepo.findBySlug(slug);
+  getBySlug(slug: string): Promise<RecipeView> {
+    return this.recipesRepository.findBySlug(slug);
   }
 
   async create(
     authorId: string,
-    dto: CreateRecipeDto,
-  ): Promise<RecipeWithRelations> {
-    const { ingredients, title, ...rest } = dto;
+    createRecipeDto: CreateRecipeDto,
+  ): Promise<RecipeView> {
+    const { ingredients, title, ...rest } = createRecipeDto;
 
-    const data: Prisma.RecipeCreateInput = {
+    const data: CreateRecipeData = {
       ...rest,
       title,
       slug: slugify(title),
-      author: { connect: { id: authorId } },
+      authorId,
     };
 
-    const created = await this.recipesRepo.create(data);
+    return this.uow.transaction(async (tx) => {
+      const created = await this.recipesRepository.create(data, tx);
 
-    if (ingredients?.length) {
-      return this.recipesRepo.replaceIngredients(created.id, ingredients);
-    }
+      if (ingredients?.length) {
+        return this.recipesRepository.replaceIngredients(
+          created.id,
+          ingredients,
+          tx,
+        );
+      }
 
-    return created;
+      return created;
+    });
   }
 
   async update(
     authorId: string,
     recipeId: string,
-    dto: UpdateRecipeDto,
-  ): Promise<RecipeWithRelations> {
-    await this.assertOwner(authorId, recipeId);
+    updateRecipeDto: UpdateRecipeDto,
+  ): Promise<RecipeView> {
+    const { ingredients, title, ...rest } = updateRecipeDto;
 
-    const { ingredients, title, ...rest } = dto;
-
-    const data: Prisma.RecipeUpdateInput = {
+    const data: UpdateRecipeData = {
       ...rest,
       ...(title ? { title, slug: slugify(title) } : {}),
     };
 
-    const updated = await this.recipesRepo.update(recipeId, data);
+    return this.uow.transaction(async (tx) => {
+      await this.assertOwner(authorId, recipeId, tx);
 
-    if (ingredients) {
-      return this.recipesRepo.replaceIngredients(recipeId, ingredients);
-    }
+      const updated = await this.recipesRepository.update(recipeId, data, tx);
 
-    return updated;
+      if (ingredients) {
+        return this.recipesRepository.replaceIngredients(
+          recipeId,
+          ingredients,
+          tx,
+        );
+      }
+
+      return updated;
+    });
   }
 
   async replaceIngredients(
@@ -79,20 +97,23 @@ export class RecipesService {
     recipeId: string,
     ingredients: RecipeIngredientInputDto[],
   ) {
-    await this.assertOwner(authorId, recipeId);
+    return this.uow.transaction(async (tx) => {
+      await this.assertOwner(authorId, recipeId, tx);
 
-    const updated = await this.recipesRepo.replaceIngredients(
-      recipeId,
-      ingredients,
-    );
-
-    return updated;
+      return this.recipesRepository.replaceIngredients(
+        recipeId,
+        ingredients,
+        tx,
+      );
+    });
   }
 
   async remove(authorId: string, recipeId: string) {
-    await this.assertOwner(authorId, recipeId);
-    await this.recipesRepo.delete(recipeId);
-    return { ok: true };
+    return this.uow.transaction(async (tx) => {
+      await this.assertOwner(authorId, recipeId, tx);
+      await this.recipesRepository.delete(recipeId, tx);
+      return { ok: true };
+    });
   }
 
   async generateRecipeFromIngredients(ingredients: string[]) {
@@ -100,11 +121,10 @@ export class RecipesService {
     return this.recipeGenerator.generateRecipeFromIngredients(ingredients);
   }
 
-  private async assertOwner(authorId: string, recipeId: string) {
-    const recipe = await this.recipesRepo.findByIdMinimal(recipeId);
-    if (!recipe) throw new NotFoundException('Recipe not found.');
-    if (recipe.authorId && recipe.authorId !== authorId) {
-      throw new ForbiddenException('Not allowed');
+  private async assertOwner(authorId: string, recipeId: string, db?: Db) {
+    const recipe = await this.recipesRepository.findByIdMinimal(recipeId, db);
+    if (recipe.authorId !== authorId) {
+      throw new NotFoundException('Recipe not found');
     }
   }
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { AiService } from 'src/domain/ai/ai.service';
 import { RecipeResponseSchema } from 'src/domain/ai/types';
-import { RecipeAIResponse } from '../types/recipes.schema';
+import { RecipeAIResponse } from '../types/ai.types';
 
 @Injectable()
 export class RecipeGeneratorService {

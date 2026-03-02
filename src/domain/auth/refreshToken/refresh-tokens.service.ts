@@ -9,7 +9,7 @@ import {
   ReplaceRefreshTokenDTO,
 } from '../types/refresh-token.dtos';
 import { type UnitOfWork } from 'src/common/db/unit-of-work';
-import { UNIT_OF_WORK } from 'src/prisma/types/db.type';
+import { UNIT_OF_WORK } from 'src/prisma/prisma.unit-of-work';
 
 @Injectable()
 export class RefreshTokenService {

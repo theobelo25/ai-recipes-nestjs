@@ -7,7 +7,7 @@ import { RequestUser } from './interfaces/request-user.interface';
 import { ChangePasswordDto, SignupDto } from './types/auth.schema';
 import { type UnitOfWork } from 'src/common/db/unit-of-work';
 import { AuthRepository } from './infrastructure/auth.repository';
-import { UNIT_OF_WORK } from 'src/prisma/types/db.type';
+import { UNIT_OF_WORK } from 'src/prisma/prisma.unit-of-work';
 
 @Injectable()
 export class AuthService {
@@ -20,8 +20,16 @@ export class AuthService {
   ) {}
 
   async signup(signupDto: SignupDto) {
-    const hashedPassword = await this.hashingService.hash(signupDto.password);
-    return this.usersService.createUser(signupDto, hashedPassword);
+    const { username, email, password } = signupDto;
+
+    const hashedPassword = await this.hashingService.hash(password);
+    return this.usersService.createUser(
+      {
+        username,
+        email,
+      },
+      hashedPassword,
+    );
   }
 
   async validateLocal(email: string, password: string) {

@@ -1,6 +1,44 @@
-import { Prisma } from 'src/prisma/generated/client';
-import { RECIPE_INCLUDE } from './recipes.constants';
+export type RecipeIngredientView = {
+  id: string;
+  ingredientId: string;
+  quantity: number | null;
+  unit: string | null;
+  note: string | null;
+  sortOrder: number;
+};
 
-export type RecipeWithRelations = Prisma.RecipeGetPayload<{
-  include: typeof RECIPE_INCLUDE;
-}>;
+export type RecipeView = {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+
+  title: string;
+  slug: string;
+  description: string | null;
+  instructions: string;
+
+  servings: number | null;
+  prepMinutes: number | null;
+  cookMinutes: number | null;
+
+  sourceUrl: string | null;
+  sourceName: string | null;
+
+  authorId: string; // keep minimal: no author object
+  ingredients: RecipeIngredientView[];
+};
+
+export type CreateRecipeData = {
+  title: string;
+  slug: string;
+  description?: string | null;
+  instructions: string;
+  servings?: number | null;
+  prepMinutes?: number | null;
+  cookMinutes?: number | null;
+  sourceUrl?: string | null;
+  sourceName?: string | null;
+  authorId: string;
+};
+
+export type UpdateRecipeData = Partial<Omit<CreateRecipeData, 'authorId'>>;

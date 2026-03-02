@@ -4,7 +4,7 @@ import {
   CreateRefreshTokenDTO,
   ReplaceRefreshTokenDTO,
 } from '../types/refresh-token.dtos';
-import { Db } from 'src/prisma/types/db.type';
+import { Db } from 'src/common/db/db.type';
 
 @Injectable()
 export class AuthRepository {
@@ -13,7 +13,7 @@ export class AuthRepository {
   async createRefreshToken(
     createRefreshTokenDTO: CreateRefreshTokenDTO,
     db: Db = this.prisma,
-  ) {
+  ): Promise<RefreshToken> {
     return db.refreshToken.create({
       data: createRefreshTokenDTO,
       select: { id: true },

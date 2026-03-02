@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
 import { UnitOfWork } from 'src/common/db/unit-of-work';
-import { Db } from './types/db.type';
+import { Db } from 'src/common/db/db.type';
 
 @Injectable()
 export class PrismaUnitOfWork implements UnitOfWork {
