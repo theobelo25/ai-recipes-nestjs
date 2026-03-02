@@ -16,7 +16,10 @@ import {
   RECIPES_REPOSITORY,
   type IRecipesRepository,
 } from './infrastructure/recipes.repository.interface';
-import { UNIT_OF_WORK, type UnitOfWork } from 'src/common/db/unit-of-work';
+import {
+  UNIT_OF_WORK,
+  type IUnitOfWork,
+} from 'src/common/uow/unit-of-work.interface';
 
 @Injectable()
 export class RecipesService {
@@ -24,7 +27,7 @@ export class RecipesService {
     @Inject(RECIPES_REPOSITORY)
     private readonly recipesRepository: IRecipesRepository,
     private readonly recipeGenerator: RecipeGeneratorService,
-    @Inject(UNIT_OF_WORK) private readonly uow: UnitOfWork,
+    @Inject(UNIT_OF_WORK) private readonly uow: IUnitOfWork,
   ) {}
 
   list() {

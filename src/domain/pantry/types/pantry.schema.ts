@@ -1,7 +1,7 @@
 import { Type, Static } from '@sinclair/typebox';
 
 export const PantryItemUnitSchema = Type.Optional(
-  Type.String({ minLength: 1, maxLength: 32 }),
+  Type.String({ minLength: 1, maxLength: 50, transform: ['trim'] }),
 );
 
 export const PantryItemNotesSchema = Type.Optional(
@@ -10,7 +10,7 @@ export const PantryItemNotesSchema = Type.Optional(
 
 export const AddPantryItemSchema = Type.Object(
   {
-    name: Type.String({ maxLength: 100 }),
+    name: Type.String({ minLength: 1, maxLength: 100, transform: ['trim'] }),
     quantity: Type.Optional(Type.Number({ minimum: 0 })),
     unit: PantryItemUnitSchema,
     notes: PantryItemNotesSchema,
@@ -32,3 +32,8 @@ export const UpdatePantryItemSchema = Type.Partial(
 
 export type AddPantryItemDto = Static<typeof AddPantryItemSchema>;
 export type UpdatePantryItemDto = Static<typeof UpdatePantryItemSchema>;
+export type PantryUpsertInput = {
+  quantity?: number;
+  unit?: string;
+  notes?: string;
+};

@@ -5,15 +5,21 @@ import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { RequestUser } from './interfaces/request-user.interface';
 import { ChangePasswordDto, SignupDto } from './types/auth.schema';
-import { type UnitOfWork } from 'src/common/db/unit-of-work';
-import { AuthRepository } from './infrastructure/auth.repository';
-import { UNIT_OF_WORK } from 'src/prisma/prisma.unit-of-work';
+import {
+  type IUnitOfWork,
+  UNIT_OF_WORK,
+} from 'src/common/uow/unit-of-work.interface';
+import {
+  AUTH_REPOSITORY,
+  type IAuthRepository,
+} from './infrastructure/auth.repository.interface';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly authRepository: AuthRepository,
-    @Inject(UNIT_OF_WORK) private readonly uow: UnitOfWork,
+    @Inject(AUTH_REPOSITORY)
+    private readonly authRepository: IAuthRepository,
+    @Inject(UNIT_OF_WORK) private readonly uow: IUnitOfWork,
     private readonly usersService: UsersService,
     private readonly hashingService: HashingService,
     private readonly jwtService: JwtService,

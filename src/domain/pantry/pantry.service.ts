@@ -1,10 +1,23 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { AddPantryItemDto, UpdatePantryItemDto } from './types/pantry.schema';
-import { PantryRepository } from './infrastructure/pantry.repository';
+import {
+  type IPantryRepository,
+  PANTRY_REPOSITORY,
+} from './infrastructure/pantry.repository.interface';
+import { IngredientsService } from '../ingredients/ingredients.service';
+import {
+  type IUnitOfWork,
+  UNIT_OF_WORK,
+} from 'src/common/uow/unit-of-work.interface';
 
 @Injectable()
 export class PantryService {
-  constructor(private readonly pantryRepository: PantryRepository) {}
+  constructor(
+    @Inject(PANTRY_REPOSITORY)
+    private readonly pantryRepository: IPantryRepository,
+    private readonly ingredientsService: IngredientsService,
+    @Inject(UNIT_OF_WORK) private readonly uow: IUnitOfWork,
+  ) {}
 
   async list(userId: string) {
     return this.pantryRepository.getPantryItems(userId);
@@ -14,8 +27,24 @@ export class PantryService {
     return this.pantryRepository.getRecentPantryItems(userId);
   }
 
-  async add(userId: string, dto: AddPantryItemDto) {
-    return this.pantryRepository.addPantryItem(userId, dto);
+  async add(userId: string, addPantryItemDto: AddPantryItemDto) {
+    return this.uow.transaction(async (tx) => {
+      const ingredient = await this.ingredientsService.ensureByName(
+        {
+          name: addPantryItemDto.name,
+        },
+        tx,
+      );
+
+      const { quantity, unit, notes } = addPantryItemDto;
+
+      return this.pantryRepository.addOrUpdateByIngredient(
+        userId,
+        ingredient.id,
+        { quantity, unit, notes },
+        tx,
+      );
+    });
   }
 
   async update(
@@ -23,14 +52,23 @@ export class PantryService {
     pantryItemId: string,
     updatePantryItemDto: UpdatePantryItemDto,
   ) {
-    return this.pantryRepository.updatePantryItem(
+    const updated = await this.pantryRepository.updatePantryItem(
       userId,
       pantryItemId,
       updatePantryItemDto,
     );
+    if (!updated) throw new NotFoundException('Pantry item not found.');
+
+    return updated;
   }
 
   async remove(userId: string, pantryItemId: string) {
-    return this.pantryRepository.removePantryItem(userId, pantryItemId);
+    const ok = await this.pantryRepository.removePantryItem(
+      userId,
+      pantryItemId,
+    );
+    if (!ok) throw new NotFoundException('Pantry item not found.');
+
+    return { ok: true };
   }
 }

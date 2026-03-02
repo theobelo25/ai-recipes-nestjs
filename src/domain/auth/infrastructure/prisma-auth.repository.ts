@@ -5,79 +5,78 @@ import {
   ReplaceRefreshTokenDTO,
 } from '../types/refresh-token.dtos';
 import { Db } from 'src/common/db/db.type';
+import { IAuthRepository } from './auth.repository.interface';
+import { RefreshToken } from 'src/prisma/generated/client';
+import { asPrismaDb } from 'src/prisma/prisma-db.util';
 
 @Injectable()
-export class AuthRepository {
+export class PrismaAuthRepository implements IAuthRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async createRefreshToken(
     createRefreshTokenDTO: CreateRefreshTokenDTO,
-    db: Db = this.prisma,
+    db?: Db,
   ): Promise<RefreshToken> {
-    return db.refreshToken.create({
+    const prisma = asPrismaDb(this.prisma, db);
+
+    return prisma.refreshToken.create({
       data: createRefreshTokenDTO,
-      select: { id: true },
     });
   }
 
   async findByTokenPrefix(
     tokenPrefix: string,
     opts?: { includeRevoked?: boolean },
+    db?: Db,
   ) {
+    const prisma = asPrismaDb(this.prisma, db);
     const now = new Date();
 
-    return this.prisma.refreshToken.findMany({
+    return prisma.refreshToken.findMany({
       where: {
         tokenPrefix,
         expiresAt: { gte: now },
         ...(opts?.includeRevoked ? {} : { revokedAt: null }),
-      },
-      select: {
-        id: true,
-        userId: true,
-        tokenHash: true,
-        revokedAt: true,
-        expiresAt: true,
-        replacedById: true,
-        createdAt: true,
       },
       orderBy: { createdAt: 'desc' },
       take: 25,
     });
   }
 
-  findByTokenId(id: string, db: Db) {
-    return db.refreshToken.findUnique({
+  findByTokenId(id: string, db?: Db) {
+    const prisma = asPrismaDb(this.prisma, db);
+    return prisma.refreshToken.findUniqueOrThrow({
       where: { id },
-      select: { id: true, userId: true, revokedAt: true, expiresAt: true },
     });
   }
 
   async markRefreshTokenReplaced(
     replaceRefreshTokenDTO: ReplaceRefreshTokenDTO,
-    db: Db = this.prisma,
+    db?: Db,
   ): Promise<void> {
-    await db.refreshToken.update({
+    const prisma = asPrismaDb(this.prisma, db);
+    await prisma.refreshToken.update({
       where: { id: replaceRefreshTokenDTO.currentId },
       data: replaceRefreshTokenDTO,
       select: { id: true },
     });
   }
 
-  async revokeRefreshToken(id: string) {
+  async revokeRefreshToken(id: string, db?: Db) {
+    const prisma = asPrismaDb(this.prisma, db);
     const now = new Date();
 
-    await this.prisma.refreshToken.updateMany({
+    await prisma.refreshToken.updateMany({
       where: { id, revokedAt: null },
       data: { revokedAt: now },
     });
   }
 
   async revokeAllUserRefreshTokens(userId: string, db?: Db) {
-    const client = db ?? this.prisma;
+    const prisma = asPrismaDb(this.prisma, db);
     const now = new Date();
 
-    return client.refreshToken.updateMany({
+    await prisma.refreshToken.updateMany({
       where: { userId, revokedAt: null },
       data: { revokedAt: now },
     });

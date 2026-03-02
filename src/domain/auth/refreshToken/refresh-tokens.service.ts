@@ -3,19 +3,25 @@ import { type ConfigType } from '@nestjs/config';
 import { HashingService } from '../hashing/hashing.service';
 import { randomBytes, createHmac } from 'node:crypto';
 import { refreshTokenConfig } from '../config/refresh-token.config';
-import { AuthRepository } from '../infrastructure/auth.repository';
 import {
   CreateRefreshTokenDTO,
   ReplaceRefreshTokenDTO,
 } from '../types/refresh-token.dtos';
-import { type UnitOfWork } from 'src/common/db/unit-of-work';
-import { UNIT_OF_WORK } from 'src/prisma/prisma.unit-of-work';
+import {
+  UNIT_OF_WORK,
+  type IUnitOfWork,
+} from 'src/common/uow/unit-of-work.interface';
+import {
+  AUTH_REPOSITORY,
+  type IAuthRepository,
+} from '../infrastructure/auth.repository.interface';
 
 @Injectable()
 export class RefreshTokenService {
   constructor(
-    @Inject(UNIT_OF_WORK) private readonly uow: UnitOfWork,
-    private readonly authRepository: AuthRepository,
+    @Inject(UNIT_OF_WORK) private readonly uow: IUnitOfWork,
+    @Inject(AUTH_REPOSITORY)
+    private readonly authRepository: IAuthRepository,
     private readonly hashingService: HashingService,
     @Inject(refreshTokenConfig.KEY)
     private readonly refreshConfig: ConfigType<typeof refreshTokenConfig>,

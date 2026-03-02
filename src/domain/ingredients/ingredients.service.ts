@@ -1,44 +1,55 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import {
   CreateIngredientDto,
   UpdateIngredientDto,
 } from './types/ingredient.schema';
 import { slugify } from 'src/common/utils/slugify';
-import { Prisma } from 'src/prisma/generated/client';
-import { IngredientsRepository } from './infrastructure/ingredients.repository';
+import { Db } from 'src/common/db/db.type';
+import {
+  type IIngredientsRepository,
+  INGREDIENTS_REPOSITORY,
+} from './infrastructure/ingredients.repository.interface';
 
 @Injectable()
 export class IngredientsService {
-  constructor(private readonly ingredientsRepository: IngredientsRepository) {}
+  constructor(
+    @Inject(INGREDIENTS_REPOSITORY)
+    private readonly ingredientsRepository: IIngredientsRepository,
+  ) {}
 
-  async create(createIngredientDto: CreateIngredientDto) {
+  async create(createIngredientDto: CreateIngredientDto, db?: Db) {
     const slug = slugify(createIngredientDto.name);
-    return this.ingredientsRepository.create(createIngredientDto, slug);
+    return this.ingredientsRepository.create(createIngredientDto, slug, db);
   }
 
-  async findAll() {
-    return this.ingredientsRepository.findAll();
+  async findAll(db?: Db) {
+    return this.ingredientsRepository.findAll(db);
   }
 
-  async findOneBySlug(slug: string) {
-    return this.ingredientsRepository.findOneBySlug(slug);
+  async findOneBySlug(slug: string, db?: Db) {
+    return this.ingredientsRepository.findOneBySlug(slug, db);
   }
 
-  async updateBySlug(slug: string, updateIngredientDto: UpdateIngredientDto) {
-    return this.ingredientsRepository.updateBySlug(slug, updateIngredientDto);
-  }
-
-  async removeBySlug(slug: string) {
-    return this.ingredientsRepository.removeBySlug(slug);
-  }
-
-  async ensureByName(
-    input: { name: string },
-    opts?: { db?: Prisma.TransactionClient },
+  async updateBySlug(
+    slug: string,
+    updateIngredientDto: UpdateIngredientDto,
+    db?: Db,
   ) {
+    return this.ingredientsRepository.updateBySlug(
+      slug,
+      updateIngredientDto,
+      db,
+    );
+  }
+
+  async removeBySlug(slug: string, db?: Db) {
+    return this.ingredientsRepository.removeBySlug(slug, db);
+  }
+
+  async ensureByName(input: { name: string }, db?: Db) {
     const name = input.name.trim();
     const slug = slugify(name);
 
-    return this.ingredientsRepository.ensureByName(name, slug, opts);
+    return this.ingredientsRepository.ensureByName(name, slug, db);
   }
 }
