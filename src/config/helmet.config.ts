@@ -1,5 +1,5 @@
 import { FastifyHelmetOptions } from '@fastify/helmet';
-import { env } from 'src/env/env';
+import { env } from 'src/env';
 const isProd = env.NODE_ENV === 'production';
 
 export const helmetConfig: FastifyHelmetOptions = {

@@ -1,5 +1,5 @@
 import { registerAs } from '@nestjs/config';
-import { env } from 'src/env/env';
+import { env } from 'src/env';
 
 export default registerAs('ai', () => {
   const config = {

@@ -6,7 +6,7 @@ import { PrismaExceptionFilter } from './common/filters/prisma-exception.filter'
 import { ValidationExceptionFilter } from './common/filters/validation-exception.filter';
 import { UsersModule } from './domain/users/users.module';
 import { PrismaModule } from './prisma/prisma.module';
-import { EnvModule } from './env/env.module';
+import { EnvModule } from './env';
 import { AuthModule } from './domain/auth/auth.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';

@@ -1,5 +1,5 @@
 import { registerAs, type ConfigType } from '@nestjs/config';
-import { env } from 'src/env/env';
+import { env } from 'src/env';
 
 export const appConfig = registerAs('app', () => ({
   nodeEnv: env.NODE_ENV ?? 'development',

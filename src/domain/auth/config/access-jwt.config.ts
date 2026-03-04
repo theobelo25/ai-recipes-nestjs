@@ -1,7 +1,7 @@
 import { registerAs } from '@nestjs/config';
 import { JwtModuleOptions } from '@nestjs/jwt';
 import { StringValue } from 'ms';
-import { env } from 'src/env/env';
+import { env } from 'src/env';
 
 export const accessJwtConfig = registerAs('accessJwt', () => {
   const config = {

@@ -1,6 +1,6 @@
 import { registerAs } from '@nestjs/config';
 import ms, { StringValue } from 'ms';
-import { env } from 'src/env/env';
+import { env } from 'src/env';
 
 export const refreshTokenConfig = registerAs('refreshToken', () => {
   const ttl = env.REFRESH_TOKEN_TTL as StringValue; // e.g. "30d"
