@@ -16,7 +16,7 @@ import { RecipesModule } from './domain/recipes';
 import { AiModule } from './domain/ai/ai.module';
 import { ConfigModule } from '@nestjs/config';
 import aiConfig from './domain/ai/config/ai.config';
-import { appConfig } from './config/app.config';
+import { appConfig } from './config';
 
 @Module({
   imports: [

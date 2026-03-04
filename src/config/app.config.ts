@@ -1,4 +1,4 @@
-import { registerAs } from '@nestjs/config';
+import { registerAs, type ConfigType } from '@nestjs/config';
 import { env } from 'src/env/env';
 
 export const appConfig = registerAs('app', () => ({
@@ -6,4 +6,4 @@ export const appConfig = registerAs('app', () => ({
   isProd: (env.NODE_ENV ?? 'development') === 'production',
 }));
 
-export type AppConfig = ReturnType<typeof appConfig>;
+export type AppConfig = ConfigType<typeof appConfig>;

@@ -4,7 +4,7 @@ import type { FastifyReply } from 'fastify';
 
 import { refreshTokenConfig } from '../config/refresh-token.config';
 import { setRefreshCookie, clearRefreshCookie } from './refresh-cookie';
-import { appConfig, type AppConfig } from 'src/config/app.config';
+import { appConfig, type AppConfig } from 'src/config';
 
 @Injectable()
 export class AuthCookiesService {
