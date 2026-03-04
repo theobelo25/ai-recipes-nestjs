@@ -10,9 +10,11 @@ import {
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { PantryService } from './pantry.service';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
-import { User } from '../auth/decorators/user.decorator';
-import { type RequestUser } from '../auth/interfaces/request-user.interface';
+import {
+  JwtAuthGuard,
+  User,
+  type RequestUser,
+} from '../auth';
 import {
   type UpdatePantryItemDto,
   type AddPantryItemDto,

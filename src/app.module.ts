@@ -15,7 +15,6 @@ import { AiModule } from './domain/ai/ai.module';
 import { ConfigModule } from '@nestjs/config';
 import aiConfig from './domain/ai/config/ai.config';
 import { appConfig } from './config/app.config';
-import { accessJwtConfig } from './domain/auth/config/access-jwt.config';
 
 @Module({
   imports: [
@@ -34,7 +33,7 @@ import { accessJwtConfig } from './domain/auth/config/access-jwt.config';
     ]),
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [appConfig, aiConfig, accessJwtConfig],
+      load: [appConfig, aiConfig],
     }),
     IngredientsModule,
     PantryModule,

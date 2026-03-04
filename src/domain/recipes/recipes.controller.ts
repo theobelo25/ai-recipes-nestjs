@@ -9,7 +9,11 @@ import {
   Patch,
 } from '@nestjs/common';
 import { RecipesService } from './recipes.service';
-import { User } from '../auth/decorators/user.decorator';
+import {
+  User,
+  Public,
+  type RequestUser,
+} from '../auth';
 import {
   CreateRecipeSchema,
   type CreateRecipeDto,
@@ -25,8 +29,6 @@ import {
   GenerateRecipeSchema,
   type GenerateRecipeDto,
 } from './types/generate-recipe.schema';
-import { Public } from '../auth/decorators/public.decorator';
-import { type RequestUser } from '../auth/interfaces/request-user.interface';
 
 @Controller('recipes')
 export class RecipesController {

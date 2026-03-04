@@ -45,8 +45,11 @@ export class AuthFlowService {
   }
 
   async signInAndIssueTokens(userId: string, reply: FastifyReply) {
+    const rawRefresh = await this.uow.transaction(async (tx) => {
+      return await this.refreshTokensService.issueInitial(userId, tx);
+    });
+
     const accessToken = await this.authService.signAccessToken(userId);
-    const rawRefresh = await this.refreshTokensService.issueInitial(userId);
     const user = await this.usersService.findPublicUserById(userId);
 
     this.cookiesService.setRefresh(reply, rawRefresh);

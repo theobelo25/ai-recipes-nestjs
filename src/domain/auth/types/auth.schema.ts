@@ -103,7 +103,6 @@ export const ChangePasswordSchema = Type.Object(
         confirmNewPassword: 'confirmPassword must match password exactly',
       },
       required: {
-        username: 'Username is required.',
         oldPassword: 'Old password is required.',
         newPassword: 'New password is required.',
         confirmNewPassword: 'Password confirmation is required.',

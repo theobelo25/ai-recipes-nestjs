@@ -32,6 +32,7 @@ import { AUTH_REPOSITORY } from './infrastructure/auth.repository.interface';
     forwardRef(() => UsersModule),
   ],
   controllers: [AuthController],
+  exports: [JwtAuthGuard],
   providers: [
     AuthService,
     { provide: HashingService, useClass: Argon2Service },

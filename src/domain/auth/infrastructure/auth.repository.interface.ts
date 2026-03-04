@@ -25,7 +25,5 @@ export interface IAuthRepository {
 
   revokeAllUserRefreshTokens(id: string, db?: Db, now?: Date): Promise<void>;
 
-  // findRefreshTokenByHash(hash: string): Promise<RefreshToken | null>;
-
   revokeRefreshToken(id: string, db?: Db): Promise<void>;
 }

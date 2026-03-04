@@ -1,4 +1,5 @@
 import { FastifyReply } from 'fastify';
+import { REFRESH_COOKIE } from '../types/auth.constants';
 
 function baseOptions(secure: boolean) {
   return {
@@ -15,14 +16,14 @@ export function setRefreshCookie(
   secure: boolean,
   maxAgeSeconds: number,
 ) {
-  reply.setCookie('refreshToken', token, {
+  reply.setCookie(REFRESH_COOKIE, token, {
     ...baseOptions(secure),
     maxAge: maxAgeSeconds,
   });
 }
 
 export function clearRefreshCookie(reply: FastifyReply, secure: boolean) {
-  reply.clearCookie('refreshToken', {
+  reply.clearCookie(REFRESH_COOKIE, {
     ...baseOptions(secure),
     maxAge: 0,
   });

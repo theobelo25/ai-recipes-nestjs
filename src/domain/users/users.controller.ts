@@ -1,7 +1,6 @@
 import { Body, Controller, Patch } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { User } from '../auth/decorators/user.decorator';
-import { type RequestUser } from '../auth/interfaces/request-user.interface';
+import { User, type RequestUser } from '../auth';
 import { RouteSchema } from '@nestjs/platform-fastify';
 import {
   type UpdateProfileDto,
