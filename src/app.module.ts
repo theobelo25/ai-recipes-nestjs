@@ -2,12 +2,14 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ValidationModule } from './common/validation/validation.module';
+import { PrismaExceptionFilter } from './common/filters/prisma-exception.filter';
+import { ValidationExceptionFilter } from './common/filters/validation-exception.filter';
 import { UsersModule } from './domain/users/users.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { EnvModule } from './env/env.module';
 import { AuthModule } from './domain/auth/auth.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { IngredientsModule } from './domain/ingredients';
 import { PantryModule } from './domain/pantry';
 import { RecipesModule } from './domain/recipes';
@@ -46,6 +48,14 @@ import { appConfig } from './config/app.config';
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: PrismaExceptionFilter,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: ValidationExceptionFilter,
     },
   ],
 })

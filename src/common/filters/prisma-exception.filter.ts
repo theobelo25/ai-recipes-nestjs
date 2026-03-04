@@ -8,42 +8,45 @@ import { HttpAdapterHost } from '@nestjs/core';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
 import { FastifyReply } from 'fastify';
 
+const PRISMA_ERROR_MAP: Partial<
+  Record<string, { statusCode: HttpStatus; message: string }>
+> = {
+  P2000: {
+    statusCode: HttpStatus.BAD_REQUEST,
+    message: 'Invalid data provided.',
+  },
+  P2002: {
+    statusCode: HttpStatus.CONFLICT,
+    message: 'Unique constraint violation.',
+  },
+  P2025: {
+    statusCode: HttpStatus.NOT_FOUND,
+    message: 'Record not found.',
+  },
+};
+
+const DEFAULT_RESPONSE = {
+  statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+  message: 'Internal server error.',
+};
+
 @Catch(PrismaClientKnownRequestError)
 export class PrismaExceptionFilter implements ExceptionFilter {
-  constructor(private readonly httpAdaptorHost: HttpAdapterHost) {}
+  constructor(private readonly httpAdapterHost: HttpAdapterHost) {}
 
   catch(exception: PrismaClientKnownRequestError, host: ArgumentsHost) {
-    const { httpAdapter } = this.httpAdaptorHost;
+    const { httpAdapter } = this.httpAdapterHost;
     const ctx = host.switchToHttp();
     const reply = ctx.getResponse<FastifyReply>();
 
-    let statusCode: HttpStatus;
-    let errorMessage: string;
-
-    switch (exception.code) {
-      case 'P2000': // The provided value for the column is too long
-        statusCode = HttpStatus.BAD_REQUEST;
-        errorMessage = 'Invalid data provided.';
-        break;
-      case 'P2002': // Unique constraint failed
-        statusCode = HttpStatus.CONFLICT;
-        errorMessage = 'Unique constraint violation.';
-        break;
-      case 'P2025': // Record not found
-        statusCode = HttpStatus.NOT_FOUND;
-        errorMessage = 'Record not found.';
-        break;
-      // Add other Prisma error codes and their corresponding HTTP status codes
-      default:
-        statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
-        errorMessage = 'Internal server error.';
-    }
+    const { statusCode, message } =
+      PRISMA_ERROR_MAP[exception.code] ?? DEFAULT_RESPONSE;
 
     const responseBody = {
       statusCode,
       timestamp: new Date().toISOString(),
       path: httpAdapter.getRequestUrl(ctx.getRequest()) as string,
-      message: errorMessage,
+      message,
     };
 
     httpAdapter.reply(reply, responseBody, statusCode);

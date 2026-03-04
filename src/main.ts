@@ -1,12 +1,11 @@
 import 'dotenv/config';
-import { HttpAdapterHost, NestFactory } from '@nestjs/core';
+import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
-import { PrismaExceptionFilter } from './common/filters/prisma-exception.filter';
-import { ValidationExceptionFilter } from './common/filters/validation-exception.filter';
+import { ValidationModule } from './common/validation/validation.module';
 import { ConfigService } from '@nestjs/config';
 import fastifyCookie from '@fastify/cookie';
 import helmet from '@fastify/helmet';
@@ -18,19 +17,16 @@ async function bootstrap() {
     new FastifyAdapter(),
   );
 
+  // Wire Fastify schema validator (Ajv) from ValidationModule
+  const validationModule = app.get(ValidationModule);
+  validationModule.configure(app);
+
   // Get Config Variable
   const configService = app.get(ConfigService);
   const port = configService.get<number>('APP_PORT')!;
 
   // Register cookie for jwt
   await app.register(fastifyCookie, cookieConfig);
-
-  // Apply Global Filters
-  const httpAdapter = app.get(HttpAdapterHost);
-  app.useGlobalFilters(
-    new PrismaExceptionFilter(httpAdapter),
-    new ValidationExceptionFilter(),
-  );
 
   app.enableCors(corsConfig);
   await app.register(helmet, helmetConfig);

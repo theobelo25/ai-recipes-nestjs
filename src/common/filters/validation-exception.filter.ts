@@ -12,7 +12,7 @@ export class ValidationExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest<FastifyRequest>();
 
     const formattedErrors = exception.validation.map((err) => ({
-      field: err.instancePath?.replace('/', '') || err.params?.missingPropery,
+      field: err.instancePath?.replace('/', '') || err.params?.missingProperty,
       message: err.message,
     }));
 
