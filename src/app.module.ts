@@ -40,7 +40,6 @@ import { appConfig } from './config';
     IngredientsModule,
     PantryModule,
     RecipesModule,
-    AiModule,
   ],
   controllers: [AppController],
   providers: [
