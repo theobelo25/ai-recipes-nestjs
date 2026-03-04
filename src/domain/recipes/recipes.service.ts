@@ -26,7 +26,7 @@ import {
   UNIT_OF_WORK,
   type IUnitOfWork,
 } from 'src/common/uow/unit-of-work.interface';
-import { IngredientsService } from '../ingredients/ingredients.service';
+import { IngredientsService } from '../ingredients';
 
 type ExtraResolved = {
   ingredientId: string;

@@ -25,6 +25,7 @@ import { AUTH_REPOSITORY } from './infrastructure/auth.repository.interface';
     ConfigModule.forFeature(accessJwtConfig),
     ConfigModule.forFeature(refreshTokenConfig),
     JwtModule.registerAsync({
+      imports: [ConfigModule.forFeature(accessJwtConfig)],
       inject: [accessJwtConfig.KEY],
       useFactory: (cfg: ConfigType<typeof accessJwtConfig>) => cfg,
     }),
@@ -34,6 +35,7 @@ import { AUTH_REPOSITORY } from './infrastructure/auth.repository.interface';
   controllers: [AuthController],
   exports: [JwtAuthGuard],
   providers: [
+    JwtAuthGuard,
     AuthService,
     { provide: HashingService, useClass: Argon2Service },
     LocalStrategy,

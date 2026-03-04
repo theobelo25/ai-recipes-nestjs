@@ -5,7 +5,7 @@ import {
   type AiCreateRecipeDto,
 } from './ai-create-recipe.schema';
 import { slugify } from 'src/common/utils/slugify';
-import { IngredientsService } from 'src/domain/ingredients/ingredients.service';
+import { IngredientsService } from 'src/domain/ingredients';
 
 @Injectable()
 export class RecipeGeneratorService {

@@ -3,13 +3,12 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import {
   CreateIngredientDto,
   UpdateIngredientDto,
-} from '../types/ingredient.schema';
+} from '../dto';
 import { Db } from 'src/common/db/db.type';
 import { asPrismaDb } from 'src/prisma/prisma-db.util';
 import { IIngredientsRepository } from './ingredients.repository.interface';
 import { Ingredient as PrismaIngredient } from 'src/prisma/generated/client';
 import { Ingredient } from '../types/ingredient.types';
-import { slugify } from 'src/common/utils/slugify';
 
 @Injectable()
 export class PrismaIngredientsRepository implements IIngredientsRepository {
@@ -37,10 +36,7 @@ export class PrismaIngredientsRepository implements IIngredientsRepository {
     const prisma = asPrismaDb(this.prisma, db);
 
     await prisma.ingredient.createMany({
-      data: items.map((i) => ({
-        name: i.name,
-        slug: slugify(i.name),
-      })),
+      data: items.map((i) => ({ name: i.name, slug: i.slug })),
       skipDuplicates: true,
     });
   }

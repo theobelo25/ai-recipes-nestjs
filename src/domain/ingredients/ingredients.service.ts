@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import {
   CreateIngredientDto,
   UpdateIngredientDto,
-} from './types/ingredient.schema';
+} from './dto';
 import { slugify } from 'src/common/utils/slugify';
 import { Db } from 'src/common/db/db.type';
 import {

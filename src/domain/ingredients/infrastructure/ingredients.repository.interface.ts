@@ -2,7 +2,7 @@ import { Db } from 'src/common/db/db.type';
 import {
   CreateIngredientDto,
   UpdateIngredientDto,
-} from '../types/ingredient.schema';
+} from '../dto';
 import { Ingredient } from '../types/ingredient.types';
 
 export const INGREDIENTS_REPOSITORY = Symbol('INGREDIENTS_REPOSITORY');
@@ -17,7 +17,7 @@ export interface IIngredientsRepository {
   create(dto: CreateIngredientDto, slug: string, db?: Db): Promise<Ingredient>;
   createMany(
     items: Array<{ name: string; slug: string }>,
-    db?: unknown,
+    db?: Db,
   ): Promise<void>;
   findAll(db?: Db): Promise<Ingredient[]>;
   findManyBySlug(

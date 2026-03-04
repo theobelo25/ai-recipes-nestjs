@@ -4,7 +4,7 @@ import {
   type IPantryRepository,
   PANTRY_REPOSITORY,
 } from './infrastructure/pantry.repository.interface';
-import { IngredientsService } from '../ingredients/ingredients.service';
+import { IngredientsService } from '../ingredients';
 import {
   type IUnitOfWork,
   UNIT_OF_WORK,

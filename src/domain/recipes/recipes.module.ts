@@ -6,7 +6,7 @@ import { RecipeGeneratorService } from './ai/recipe-generator.service';
 import { AuthModule } from '../auth/auth.module';
 import { AiModule } from '../ai/ai.module';
 import { RECIPES_REPOSITORY } from './infrastructure/recipes.repository.interface';
-import { IngredientsModule } from '../ingredients/ingredients.module';
+import { IngredientsModule } from '../ingredients';
 
 @Module({
   imports: [AuthModule, AiModule, IngredientsModule],
