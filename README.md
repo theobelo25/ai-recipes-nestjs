@@ -10,6 +10,7 @@ A **full-featured NestJS backend** for the AI Recipe Finder project. This backen
 - [Tech Stack](#tech-stack)
 - [Getting Started](#getting-started)
 - [Project Structure](#project-structure)
+- [Architecture](#architecture)
 - [API Endpoints](#api-endpoints)
 - [Validation](#validation)
 - [Environment Variables](#environment-variables)
@@ -71,3 +72,15 @@ yarn install
 # Set up Prisma
 npx prisma generate
 ```
+
+---
+
+## **Project Structure**
+
+_(See repository layout; domain modules under `src/domain/`.)_
+
+---
+
+## **Architecture**
+
+- **[AI Module](docs/ai-module.md)** – Design and conventions for the provider-agnostic AI layer (Gemini, Groq, Ollama): SOLID, NestJS patterns, validation, and how to add a new provider.

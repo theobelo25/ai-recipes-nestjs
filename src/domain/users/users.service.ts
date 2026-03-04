@@ -51,7 +51,10 @@ export class UsersService {
    * Internal methods (can include sensitive relations).
    * * * * * * * * * *
    */
-  async findPrivateUserByEmail(email: string, db?: Db): Promise<PrivateUser> {
+  async findPrivateUserByEmail(
+    email: string,
+    db?: Db,
+  ): Promise<PrivateUser | null> {
     return this.usersRepository.getPrivateUserByEmail(email, db);
   }
 

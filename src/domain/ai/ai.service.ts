@@ -1,7 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { AI_PROVIDER } from './providers/ai.tokens';
+import { AI_PROVIDER } from './providers/provider.keys';
 import { type AIProvider } from './providers/ai-provider';
-import { GenerateJsonInput, GenerateTextInput } from './types';
+import {
+  type AllowedIngredientRef,
+  type GenerateJsonInput,
+  type GenerateTextInput,
+} from './types';
 
 @Injectable()
 export class AiService {
@@ -11,7 +15,10 @@ export class AiService {
     return this.provider.generateText(input);
   }
 
-  generateJson<T>(input: GenerateJsonInput): Promise<T> {
-    return this.provider.generateJson<T>(input);
+  generateJson<T>(
+    input: GenerateJsonInput,
+    allowedIngredients: AllowedIngredientRef[],
+  ): Promise<T> {
+    return this.provider.generateJson<T>(input, allowedIngredients);
   }
 }

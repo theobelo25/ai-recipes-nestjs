@@ -3,6 +3,7 @@ import Ajv, { type ValidateFunction } from 'ajv';
 import addFormats from 'ajv-formats';
 import addErrors from 'ajv-errors';
 import addKeywords from 'ajv-keywords';
+import { isJsonStringArrayKeyword } from './validation.utils';
 
 @Injectable()
 export class ValidationService {
@@ -21,6 +22,7 @@ export class ValidationService {
 
     // ✅ Enable the "transform" keyword so `transform: ['trim']` works
     addKeywords(this.ajv, ['transform']);
+    this.ajv.addKeyword(isJsonStringArrayKeyword);
   }
 
   compileSchema<TSchema extends object>(schema: TSchema): ValidateFunction {

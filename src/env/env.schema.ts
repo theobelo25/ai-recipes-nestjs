@@ -23,9 +23,17 @@ export const envSchema = z.object({
   JWT_AUDIENCE: z.string().min(1),
 
   AI_PROVIDER: z.enum(AI_PROVIDER_KEYS),
+
   GEMINI_API_KEY: z.string().min(1),
   GEMINI_MODEL: z.string().min(1),
   GEMINI_BASE_URL: z.url(),
+
+  GROQ_API_KEY: z.string().min(1),
+  GROQ_MODEL: z.string().min(1),
+  GROQ_BASE_URL: z.string().min(1),
+
+  OLLAMA_BASE_URL: z.string().min(1),
+  OLLAMA_MODEL: z.string().min(1),
 });
 
 // Handy typed shape if you want it elsewhere

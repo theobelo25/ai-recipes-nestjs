@@ -1,14 +1,19 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import { AuthService } from '../auth.service';
 import { UsersService } from 'src/domain/users/users.service';
 import { AuthCookiesService } from '../cookies/auth-cookies.service';
 import { RefreshTokenService } from '../refreshToken/refresh-tokens.service';
 import { SignupDto } from '../types/auth.schema';
 import { FastifyReply } from 'fastify';
+import {
+  type IUnitOfWork,
+  UNIT_OF_WORK,
+} from 'src/common/uow/unit-of-work.interface';
 
 @Injectable()
 export class AuthFlowService {
   constructor(
+    @Inject(UNIT_OF_WORK) private readonly uow: IUnitOfWork,
     private readonly authService: AuthService,
     private readonly usersService: UsersService,
     private readonly refreshTokensService: RefreshTokenService,
@@ -24,9 +29,16 @@ export class AuthFlowService {
         'A user with this email address already exists.',
       );
 
-    const user = await this.authService.signup(signupDto);
+    const { user, rawRefresh } = await this.uow.transaction(async (tx) => {
+      const user = await this.authService.signup(signupDto, tx);
+      const rawRefresh = await this.refreshTokensService.issueInitial(
+        user.id,
+        tx,
+      );
+      return { user, rawRefresh };
+    });
+
     const accessToken = await this.authService.signAccessToken(user.id);
-    const rawRefresh = await this.refreshTokensService.issueInitial(user.id);
     this.cookiesService.setRefresh(reply, rawRefresh);
 
     return { accessToken, user };

@@ -1,9 +1,11 @@
 export type RecipeIngredientView = {
   id: string;
+  ingredient: {
+    name: string;
+  };
   ingredientId: string;
   quantity: number | null;
   unit: string | null;
-  note: string | null;
   sortOrder: number;
 };
 

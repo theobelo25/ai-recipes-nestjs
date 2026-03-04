@@ -4,46 +4,46 @@ import {
   InternalServerErrorException,
   OnModuleInit,
 } from '@nestjs/common';
-import { AIProvider } from '../ai-provider';
 import { type ConfigType } from '@nestjs/config';
-import aiConfig from '../../config/ai.config';
 
+import { AIProvider } from '../ai-provider';
+import aiConfig from '../../config/ai.config';
 import { AiJsonValidator } from '../../validation/ai-json-validator';
 import {
   buildPrompt,
   buildStrictJsonPrompt,
 } from '../../validation/ai-json-prompt-builder';
-import { GeminiClient } from './gemini.client';
+import { GroqClient } from './groq.client';
 import {
   AI_ERROR_CODES,
   type AiErrorResponseBody,
 } from '../../errors/ai-error-codes';
 import {
   type AllowedIngredientRef,
-  type GeminiClientConfig,
   type GenerateJsonInput,
   type GenerateTextInput,
+  type GroqClientConfig,
 } from '../../types';
 
 @Injectable()
-export class GeminiProvider implements AIProvider, OnModuleInit {
-  private geminiConfig!: GeminiClientConfig;
+export class GroqProvider implements AIProvider, OnModuleInit {
+  private groqConfig!: GroqClientConfig;
 
   constructor(
-    private readonly geminiClient: GeminiClient,
+    private readonly groqClient: GroqClient,
     private readonly jsonValidator: AiJsonValidator,
     @Inject(aiConfig.KEY)
     private readonly config: ConfigType<typeof aiConfig>,
   ) {}
 
   onModuleInit() {
-    this.geminiConfig = this.validateAndGetConfig();
+    this.groqConfig = this.validateAndGetConfig();
   }
 
   async generateText(input: GenerateTextInput): Promise<{ text: string }> {
     const config = this.getConfig();
     const prompt = buildPrompt(input);
-    const text = await this.geminiClient.generateText(config, prompt);
+    const text = await this.groqClient.generateText(config, prompt);
     return { text };
   }
 
@@ -62,32 +62,32 @@ export class GeminiProvider implements AIProvider, OnModuleInit {
       schema: input.schema,
     });
 
-    const raw = await this.geminiClient.generateText(config, strictPrompt);
+    const raw = await this.groqClient.generateText(config, strictPrompt);
     return this.jsonValidator.parseAndValidate<T>(raw, input.schema, {
       allowedIngredients,
     });
   }
 
-  private getConfig(): GeminiClientConfig {
-    if (this.geminiConfig) return this.geminiConfig;
-    this.geminiConfig = this.validateAndGetConfig();
-    return this.geminiConfig;
+  private getConfig(): GroqClientConfig {
+    if (this.groqConfig) return this.groqConfig;
+    this.groqConfig = this.validateAndGetConfig();
+    return this.groqConfig;
   }
 
-  private validateAndGetConfig() {
-    const apiKey = this.config.gemini.apiKey?.trim();
-    const baseUrl = this.config.gemini.baseUrl?.trim();
-    const model = this.config.gemini.model?.trim();
+  private validateAndGetConfig(): GroqClientConfig {
+    const apiKey = this.config.groq.apiKey?.trim();
+    const baseUrl = this.config.groq.baseUrl?.trim();
+    const model = this.config.groq.model?.trim();
 
     const missing: string[] = [];
-    if (!apiKey) missing.push('GEMINI_API_KEY');
-    if (!baseUrl) missing.push('GEMINI_BASE_URL');
-    if (!model) missing.push('GEMINI_MODEL');
+    if (!apiKey) missing.push('GROQ_API_KEY');
+    if (!baseUrl) missing.push('GROQ_BASE_URL');
+    if (!model) missing.push('GROQ_MODEL');
 
     if (missing.length) {
       const body: AiErrorResponseBody = {
         errorCode: AI_ERROR_CODES.AI_CONFIG_MISSING,
-        message: `Missing AI config: ${missing.join(', ')} (provider=gemini)`,
+        message: `Missing AI config: ${missing.join(', ')} (provider=groq)`,
         missingKeys: missing,
       };
       throw new InternalServerErrorException(body);

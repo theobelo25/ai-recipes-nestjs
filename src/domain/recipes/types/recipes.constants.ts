@@ -6,8 +6,8 @@ export const RECIPE_INCLUDE = {
       ingredientId: true,
       quantity: true,
       unit: true,
-      note: true,
       sortOrder: true,
+      ingredient: { select: { name: true } },
     },
   },
 } as const;

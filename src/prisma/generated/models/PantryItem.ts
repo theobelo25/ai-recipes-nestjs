@@ -40,7 +40,6 @@ export type PantryItemMinAggregateOutputType = {
   ingredientId: string | null
   quantity: number | null
   unit: string | null
-  notes: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -51,7 +50,6 @@ export type PantryItemMaxAggregateOutputType = {
   ingredientId: string | null
   quantity: number | null
   unit: string | null
-  notes: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -62,7 +60,6 @@ export type PantryItemCountAggregateOutputType = {
   ingredientId: number
   quantity: number
   unit: number
-  notes: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -83,7 +80,6 @@ export type PantryItemMinAggregateInputType = {
   ingredientId?: true
   quantity?: true
   unit?: true
-  notes?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -94,7 +90,6 @@ export type PantryItemMaxAggregateInputType = {
   ingredientId?: true
   quantity?: true
   unit?: true
-  notes?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -105,7 +100,6 @@ export type PantryItemCountAggregateInputType = {
   ingredientId?: true
   quantity?: true
   unit?: true
-  notes?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -203,7 +197,6 @@ export type PantryItemGroupByOutputType = {
   ingredientId: string
   quantity: number | null
   unit: string | null
-  notes: string | null
   createdAt: Date
   updatedAt: Date
   _count: PantryItemCountAggregateOutputType | null
@@ -237,7 +230,6 @@ export type PantryItemWhereInput = {
   ingredientId?: Prisma.UuidFilter<"PantryItem"> | string
   quantity?: Prisma.FloatNullableFilter<"PantryItem"> | number | null
   unit?: Prisma.StringNullableFilter<"PantryItem"> | string | null
-  notes?: Prisma.StringNullableFilter<"PantryItem"> | string | null
   createdAt?: Prisma.DateTimeFilter<"PantryItem"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PantryItem"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -250,7 +242,6 @@ export type PantryItemOrderByWithRelationInput = {
   ingredientId?: Prisma.SortOrder
   quantity?: Prisma.SortOrderInput | Prisma.SortOrder
   unit?: Prisma.SortOrderInput | Prisma.SortOrder
-  notes?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
@@ -267,7 +258,6 @@ export type PantryItemWhereUniqueInput = Prisma.AtLeast<{
   ingredientId?: Prisma.UuidFilter<"PantryItem"> | string
   quantity?: Prisma.FloatNullableFilter<"PantryItem"> | number | null
   unit?: Prisma.StringNullableFilter<"PantryItem"> | string | null
-  notes?: Prisma.StringNullableFilter<"PantryItem"> | string | null
   createdAt?: Prisma.DateTimeFilter<"PantryItem"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PantryItem"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
@@ -280,7 +270,6 @@ export type PantryItemOrderByWithAggregationInput = {
   ingredientId?: Prisma.SortOrder
   quantity?: Prisma.SortOrderInput | Prisma.SortOrder
   unit?: Prisma.SortOrderInput | Prisma.SortOrder
-  notes?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.PantryItemCountOrderByAggregateInput
@@ -299,7 +288,6 @@ export type PantryItemScalarWhereWithAggregatesInput = {
   ingredientId?: Prisma.UuidWithAggregatesFilter<"PantryItem"> | string
   quantity?: Prisma.FloatNullableWithAggregatesFilter<"PantryItem"> | number | null
   unit?: Prisma.StringNullableWithAggregatesFilter<"PantryItem"> | string | null
-  notes?: Prisma.StringNullableWithAggregatesFilter<"PantryItem"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"PantryItem"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"PantryItem"> | Date | string
 }
@@ -308,7 +296,6 @@ export type PantryItemCreateInput = {
   id?: string
   quantity?: number | null
   unit?: string | null
-  notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutPantryItemsInput
@@ -321,7 +308,6 @@ export type PantryItemUncheckedCreateInput = {
   ingredientId: string
   quantity?: number | null
   unit?: string | null
-  notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -330,7 +316,6 @@ export type PantryItemUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutPantryItemsNestedInput
@@ -343,7 +328,6 @@ export type PantryItemUncheckedUpdateInput = {
   ingredientId?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -354,7 +338,6 @@ export type PantryItemCreateManyInput = {
   ingredientId: string
   quantity?: number | null
   unit?: string | null
-  notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -363,7 +346,6 @@ export type PantryItemUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -374,7 +356,6 @@ export type PantryItemUncheckedUpdateManyInput = {
   ingredientId?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -400,7 +381,6 @@ export type PantryItemCountOrderByAggregateInput = {
   ingredientId?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
   unit?: Prisma.SortOrder
-  notes?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -415,7 +395,6 @@ export type PantryItemMaxOrderByAggregateInput = {
   ingredientId?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
   unit?: Prisma.SortOrder
-  notes?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -426,7 +405,6 @@ export type PantryItemMinOrderByAggregateInput = {
   ingredientId?: Prisma.SortOrder
   quantity?: Prisma.SortOrder
   unit?: Prisma.SortOrder
-  notes?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -531,7 +509,6 @@ export type PantryItemCreateWithoutUserInput = {
   id?: string
   quantity?: number | null
   unit?: string | null
-  notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   ingredient: Prisma.IngredientCreateNestedOneWithoutPantryItemsInput
@@ -542,7 +519,6 @@ export type PantryItemUncheckedCreateWithoutUserInput = {
   ingredientId: string
   quantity?: number | null
   unit?: string | null
-  notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -582,7 +558,6 @@ export type PantryItemScalarWhereInput = {
   ingredientId?: Prisma.UuidFilter<"PantryItem"> | string
   quantity?: Prisma.FloatNullableFilter<"PantryItem"> | number | null
   unit?: Prisma.StringNullableFilter<"PantryItem"> | string | null
-  notes?: Prisma.StringNullableFilter<"PantryItem"> | string | null
   createdAt?: Prisma.DateTimeFilter<"PantryItem"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PantryItem"> | Date | string
 }
@@ -591,7 +566,6 @@ export type PantryItemCreateWithoutIngredientInput = {
   id?: string
   quantity?: number | null
   unit?: string | null
-  notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutPantryItemsInput
@@ -602,7 +576,6 @@ export type PantryItemUncheckedCreateWithoutIngredientInput = {
   userId: string
   quantity?: number | null
   unit?: string | null
-  notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -638,7 +611,6 @@ export type PantryItemCreateManyUserInput = {
   ingredientId: string
   quantity?: number | null
   unit?: string | null
-  notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -647,7 +619,6 @@ export type PantryItemUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   ingredient?: Prisma.IngredientUpdateOneRequiredWithoutPantryItemsNestedInput
@@ -658,7 +629,6 @@ export type PantryItemUncheckedUpdateWithoutUserInput = {
   ingredientId?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -668,7 +638,6 @@ export type PantryItemUncheckedUpdateManyWithoutUserInput = {
   ingredientId?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -678,7 +647,6 @@ export type PantryItemCreateManyIngredientInput = {
   userId: string
   quantity?: number | null
   unit?: string | null
-  notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -687,7 +655,6 @@ export type PantryItemUpdateWithoutIngredientInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutPantryItemsNestedInput
@@ -698,7 +665,6 @@ export type PantryItemUncheckedUpdateWithoutIngredientInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -708,7 +674,6 @@ export type PantryItemUncheckedUpdateManyWithoutIngredientInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   quantity?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   unit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -721,7 +686,6 @@ export type PantryItemSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   ingredientId?: boolean
   quantity?: boolean
   unit?: boolean
-  notes?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -734,7 +698,6 @@ export type PantryItemSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   ingredientId?: boolean
   quantity?: boolean
   unit?: boolean
-  notes?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -747,7 +710,6 @@ export type PantryItemSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   ingredientId?: boolean
   quantity?: boolean
   unit?: boolean
-  notes?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -760,12 +722,11 @@ export type PantryItemSelectScalar = {
   ingredientId?: boolean
   quantity?: boolean
   unit?: boolean
-  notes?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type PantryItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "ingredientId" | "quantity" | "unit" | "notes" | "createdAt" | "updatedAt", ExtArgs["result"]["pantryItem"]>
+export type PantryItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "ingredientId" | "quantity" | "unit" | "createdAt" | "updatedAt", ExtArgs["result"]["pantryItem"]>
 export type PantryItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   ingredient?: boolean | Prisma.IngredientDefaultArgs<ExtArgs>
@@ -791,7 +752,6 @@ export type $PantryItemPayload<ExtArgs extends runtime.Types.Extensions.Internal
     ingredientId: string
     quantity: number | null
     unit: string | null
-    notes: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["pantryItem"]>
@@ -1224,7 +1184,6 @@ export interface PantryItemFieldRefs {
   readonly ingredientId: Prisma.FieldRef<"PantryItem", 'String'>
   readonly quantity: Prisma.FieldRef<"PantryItem", 'Float'>
   readonly unit: Prisma.FieldRef<"PantryItem", 'String'>
-  readonly notes: Prisma.FieldRef<"PantryItem", 'String'>
   readonly createdAt: Prisma.FieldRef<"PantryItem", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"PantryItem", 'DateTime'>
 }

@@ -1,12 +1,6 @@
 import { RefreshToken } from 'src/prisma/generated/client';
 import { Db } from 'src/common/db/db.type';
-
-type CreateRefreshTokenDTO = {
-  userId: string;
-  tokenHash: string;
-  tokenPrefix: string;
-  expiresAt: Date;
-};
+import { CreateRefreshTokenDTO } from '../types/refresh-token.dtos';
 
 export const AUTH_REPOSITORY = Symbol('AUTH_REPOSITORY');
 
@@ -24,14 +18,14 @@ export interface IAuthRepository {
 
   findByTokenId(id: string, db?: Db): Promise<RefreshToken>;
 
-  markRefreshTokenReplaced(
+  consumeAndReplaceRefreshToken(
     data: { currentId: string; replacedById: string; now: Date },
     db?: Db,
-  ): Promise<void>;
+  ): Promise<boolean>;
 
-  revokeAllUserRefreshTokens(id: string, db?: Db): Promise<void>;
+  revokeAllUserRefreshTokens(id: string, db?: Db, now?: Date): Promise<void>;
 
   // findRefreshTokenByHash(hash: string): Promise<RefreshToken | null>;
 
-  revokeRefreshToken(id: string): Promise<void>;
+  revokeRefreshToken(id: string, db?: Db): Promise<void>;
 }

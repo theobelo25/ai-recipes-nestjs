@@ -3,6 +3,9 @@ export type CreateRefreshTokenDTO = {
   tokenHash: string;
   tokenPrefix: string;
   expiresAt: Date;
+  deviceLabel?: string | null;
+  userAgentHash?: string | null;
+  ipFirstSeen?: string | null;
 };
 
 export type RotateRefreshTokenDTO = {

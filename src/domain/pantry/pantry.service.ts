@@ -36,12 +36,12 @@ export class PantryService {
         tx,
       );
 
-      const { quantity, unit, notes } = addPantryItemDto;
+      const { quantity, unit } = addPantryItemDto;
 
       return this.pantryRepository.addOrUpdateByIngredient(
         userId,
         ingredient.id,
-        { quantity, unit, notes },
+        { quantity, unit },
         tx,
       );
     });

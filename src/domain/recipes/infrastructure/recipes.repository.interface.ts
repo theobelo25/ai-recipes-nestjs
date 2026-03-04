@@ -10,6 +10,8 @@ export const RECIPES_REPOSITORY = Symbol('RECIPES_REPOSITORY');
 
 export interface IRecipesRepository {
   findMany(db?: Db): Promise<RecipeView[]>;
+  findManyByUserId(userId: string, db?: Db): Promise<RecipeView[]>;
+  findRecentByUserId(userId: string, db?: Db): Promise<RecipeView[]>;
   findBySlug(slug: string, db?: Db): Promise<RecipeView>;
   findByIdMinimal(
     id: string,
@@ -17,6 +19,26 @@ export interface IRecipesRepository {
   ): Promise<{ id: string; authorId: string }>;
 
   create(data: CreateRecipeData, db?: Db): Promise<RecipeView>;
+  createFromGenerated(
+    userId: string,
+    data: {
+      title: string;
+      description: string;
+      instructions: string[];
+      servings: number;
+      prepMinutes: number;
+      cookMinutes: number;
+      sourceUrl: string | null;
+      sourceName: string | null;
+      ingredients: Array<{
+        ingredientId: string;
+        quantity: number | null;
+        unit: string | null;
+        sortOrder: number;
+      }>;
+    },
+    db?: unknown,
+  ): Promise<RecipeView>;
   update(
     recipeId: string,
     data: UpdateRecipeData,

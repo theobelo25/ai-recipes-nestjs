@@ -78,7 +78,6 @@ model PantryItem {
 
   quantity Float?
   unit     String?
-  notes    String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -125,7 +124,6 @@ model RecipeIngredient {
 
   quantity Float?
   unit     String?
-  note     String?
 
   sortOrder Int @default(0)
 

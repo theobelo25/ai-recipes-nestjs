@@ -11,6 +11,7 @@ import { IRecipesRepository } from './recipes.repository.interface';
 import { Db } from 'src/common/db/db.type';
 import { asPrismaDb } from 'src/prisma/prisma-db.util';
 import { Prisma } from 'src/prisma/generated/client';
+import { slugify } from 'src/common/utils/slugify';
 
 type PrismaRecipeWithIngredients = Prisma.RecipeGetPayload<{
   include: typeof RECIPE_INCLUDE;
@@ -33,6 +34,23 @@ export class PrismaRecipesRepository implements IRecipesRepository {
     });
 
     return rows.map((r) => this.toView(r));
+  }
+
+  async findManyByUserId(userId: string, db?: Db) {
+    const prisma = asPrismaDb(this.prisma, db);
+    return await prisma.recipe.findMany({
+      where: { authorId: userId },
+      include: this.include(),
+    });
+  }
+
+  async findRecentByUserId(userId: string, db?: Db) {
+    const prisma = asPrismaDb(this.prisma, db);
+    return await prisma.recipe.findMany({
+      where: { authorId: userId },
+      include: this.include(),
+      take: 3,
+    });
   }
 
   async findBySlug(slug: string, db?: Db): Promise<RecipeView> {
@@ -66,7 +84,7 @@ export class PrismaRecipesRepository implements IRecipesRepository {
         title: data.title,
         slug: data.slug,
         description: data.description ?? null,
-        instructions: data.instructions,
+        instructions: JSON.stringify(data.instructions),
         servings: data.servings ?? null,
         prepMinutes: data.prepMinutes ?? null,
         cookMinutes: data.cookMinutes ?? null,
@@ -105,7 +123,6 @@ export class PrismaRecipesRepository implements IRecipesRepository {
           ingredientId: i.ingredientId,
           quantity: i.quantity ?? null,
           unit: i.unit ?? null,
-          note: i.note ?? null,
           sortOrder: i.sortOrder ?? idx,
         })),
       });
@@ -132,7 +149,7 @@ export class PrismaRecipesRepository implements IRecipesRepository {
         title: data.title,
         slug: data.slug,
         description: data.description,
-        instructions: data.instructions,
+        instructions: JSON.stringify(data.instructions),
         servings: data.servings,
         prepMinutes: data.prepMinutes,
         cookMinutes: data.cookMinutes,
@@ -163,10 +180,116 @@ export class PrismaRecipesRepository implements IRecipesRepository {
 
       ingredients: recipe.ingredients.map((ri) => ({
         id: ri.id,
+        ingredient: { name: ri.ingredient.name },
         ingredientId: ri.ingredientId,
         quantity: ri.quantity,
         unit: ri.unit,
-        note: ri.note,
+        sortOrder: ri.sortOrder,
+      })),
+    };
+  }
+
+  async createFromGenerated(
+    userId: string,
+    data: {
+      title: string;
+      description: string;
+      instructions: string[];
+      servings: number;
+      prepMinutes: number;
+      cookMinutes: number;
+      sourceUrl: string | null;
+      sourceName: string | null;
+      ingredients: Array<{
+        ingredientId: string;
+        quantity: number | null;
+        unit: string | null;
+        sortOrder: number;
+      }>;
+    },
+    db?: Db,
+  ): Promise<RecipeView> {
+    const prisma = asPrismaDb(this.prisma, db);
+
+    const created = await prisma.recipe.create({
+      data: {
+        authorId: userId,
+        title: data.title,
+        slug: slugify(data.title),
+        description: data.description,
+        instructions: JSON.stringify(data.instructions),
+
+        servings: data.servings,
+        prepMinutes: data.prepMinutes,
+        cookMinutes: data.cookMinutes,
+        sourceUrl: data.sourceUrl,
+        sourceName: data.sourceName,
+
+        ingredients: {
+          create: data.ingredients.map((ri) => ({
+            ingredientId: ri.ingredientId,
+            quantity: ri.quantity,
+            unit: ri.unit,
+            sortOrder: ri.sortOrder,
+          })),
+        },
+      },
+      select: {
+        id: true,
+        authorId: true,
+        title: true,
+        slug: true,
+        description: true,
+        instructions: true,
+        servings: true,
+        prepMinutes: true,
+        cookMinutes: true,
+        sourceUrl: true,
+        sourceName: true,
+        createdAt: true,
+        updatedAt: true,
+        ingredients: {
+          orderBy: { sortOrder: 'asc' },
+          select: {
+            id: true,
+            ingredientId: true,
+            quantity: true,
+            unit: true,
+            sortOrder: true,
+            ingredient: {
+              select: {
+                name: true,
+                slug: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return {
+      id: created.id,
+      authorId: created.authorId,
+      title: created.title,
+      slug: created.slug,
+      description: created.description,
+      instructions: created.instructions,
+      servings: created.servings,
+      prepMinutes: created.prepMinutes,
+      cookMinutes: created.cookMinutes,
+      sourceUrl: created.sourceUrl,
+      sourceName: created.sourceName,
+      createdAt: created.createdAt,
+      updatedAt: created.updatedAt,
+      ingredients: created.ingredients.map((ri) => ({
+        id: ri.id,
+        ingredientId: ri.ingredientId,
+        ingredient: {
+          name: ri.ingredient.name,
+        },
+        slug: ri.ingredient.slug,
+        quantity: ri.quantity,
+        unit: ri.unit,
         sortOrder: ri.sortOrder,
       })),
     };

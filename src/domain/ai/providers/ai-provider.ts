@@ -1,7 +1,14 @@
-import { GenerateJsonInput, GenerateTextInput } from '../types';
+import {
+  AllowedIngredientRef,
+  GenerateJsonInput,
+  GenerateTextInput,
+} from '../types';
 
 export interface AIProvider {
   generateText(input: GenerateTextInput): Promise<{ text: string }>;
 
-  generateJson<T>(input: GenerateJsonInput): Promise<T>;
+  generateJson<T>(
+    input: GenerateJsonInput,
+    allowedIngredients: AllowedIngredientRef[],
+  ): Promise<T>;
 }

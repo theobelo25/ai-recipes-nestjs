@@ -9,6 +9,7 @@ import { asPrismaDb } from 'src/prisma/prisma-db.util';
 import { IIngredientsRepository } from './ingredients.repository.interface';
 import { Ingredient as PrismaIngredient } from 'src/prisma/generated/client';
 import { Ingredient } from '../types/ingredient.types';
+import { slugify } from 'src/common/utils/slugify';
 
 @Injectable()
 export class PrismaIngredientsRepository implements IIngredientsRepository {
@@ -27,6 +28,23 @@ export class PrismaIngredientsRepository implements IIngredientsRepository {
     return this.toIngredientDto(ingredient);
   }
 
+  async createMany(
+    items: Array<{ name: string; slug: string }>,
+    db?: Db,
+  ): Promise<void> {
+    if (!items.length) return;
+
+    const prisma = asPrismaDb(this.prisma, db);
+
+    await prisma.ingredient.createMany({
+      data: items.map((i) => ({
+        name: i.name,
+        slug: slugify(i.name),
+      })),
+      skipDuplicates: true,
+    });
+  }
+
   async findAll(db?: Db) {
     const prisma = asPrismaDb(this.prisma, db);
     const ingredients = await prisma.ingredient.findMany({
@@ -34,6 +52,21 @@ export class PrismaIngredientsRepository implements IIngredientsRepository {
     });
 
     return ingredients.map((i) => this.toIngredientDto(i));
+  }
+
+  async findManyBySlug(
+    slugs: string[],
+    db?: Db,
+  ): Promise<{ id: string; name: string; slug: string }[]> {
+    const prisma = asPrismaDb(this.prisma, db);
+    return await prisma.ingredient.findMany({
+      where: { slug: { in: slugs } },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+      },
+    });
   }
 
   async findOneBySlug(slug: string, db?: Db) {

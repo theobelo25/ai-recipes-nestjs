@@ -15,6 +15,7 @@ import {
   AUTH_REPOSITORY,
   type IAuthRepository,
 } from '../infrastructure/auth.repository.interface';
+import { Db } from 'src/common/db/db.type';
 
 @Injectable()
 export class RefreshTokenService {
@@ -42,7 +43,7 @@ export class RefreshTokenService {
     return randomBytes(32).toString('base64url');
   }
 
-  async issueInitial(userId: string): Promise<string> {
+  async issueInitial(userId: string, db?: Db): Promise<string> {
     const raw = this.generateRefreshToken();
     const createRefreshTokenDTO: CreateRefreshTokenDTO = {
       userId,
@@ -51,7 +52,7 @@ export class RefreshTokenService {
       expiresAt: new Date(Date.now() + this.refreshTtlSeconds * 1000),
     };
 
-    await this.authRepository.createRefreshToken(createRefreshTokenDTO);
+    await this.authRepository.createRefreshToken(createRefreshTokenDTO, db);
 
     return raw;
   }
@@ -76,48 +77,72 @@ export class RefreshTokenService {
       includeRevoked: true,
     });
     if (!matched) throw new UnauthorizedException('Invalid refresh token');
-    if (matched.revokedAt) {
-      await this.authRepository.revokeAllUserRefreshTokens(matched.userId);
-      throw new UnauthorizedException('Refresh token reuse detected');
-    }
 
-    const nextRaw = this.generateRefreshToken();
-
-    const createRefreshTokenDTO: CreateRefreshTokenDTO = {
-      userId: matched.userId,
-      tokenHash: await this.hashingService.hash(nextRaw),
-      tokenPrefix: this.getTokenPrefix(nextRaw),
-      expiresAt: new Date(Date.now() + this.refreshTtlSeconds * 1000),
-    };
+    const now = new Date();
 
     return this.uow.transaction(async (tx) => {
+      const current = await this.authRepository.findByTokenId(matched.id, tx);
+      if (current.expiresAt <= now)
+        throw new UnauthorizedException('Invalid refresh token');
+
+      if (current.revokedAt) {
+        await this.authRepository.revokeAllUserRefreshTokens(
+          current.userId,
+          tx,
+          now,
+        );
+        throw new UnauthorizedException('Refresh token reuse detected');
+      }
+
+      const nextRaw = this.generateRefreshToken();
+      const createRefreshTokenDTO: CreateRefreshTokenDTO = {
+        userId: current.userId,
+        tokenHash: await this.hashingService.hash(nextRaw),
+        tokenPrefix: this.getTokenPrefix(nextRaw),
+        expiresAt: this.getRefreshExpiresAt(),
+        deviceLabel: current.deviceLabel ?? null,
+        userAgentHash: current.userAgentHash ?? null,
+        ipFirstSeen: current.ipFirstSeen ?? null,
+      };
+
       const next = await this.authRepository.createRefreshToken(
         createRefreshTokenDTO,
         tx,
       );
-      const now = new Date();
 
       const replaceRefreshTokenDTO: ReplaceRefreshTokenDTO = {
         currentId: matched.id,
         replacedById: next.id,
-        now,
+        now: now,
       };
 
-      await this.authRepository.markRefreshTokenReplaced(
+      const consumed = await this.authRepository.consumeAndReplaceRefreshToken(
         replaceRefreshTokenDTO,
         tx,
       );
+      if (!consumed) {
+        await this.authRepository.revokeAllUserRefreshTokens(
+          current.userId,
+          tx,
+          now,
+        );
+        throw new UnauthorizedException('Refresh token reuse detected');
+      }
 
       return { userId: matched.userId, nextRaw };
     });
   }
 
-  async revoke(raw: string) {
+  async revoke(raw: string, db?: Db) {
     const matched = await this.findByRaw(raw, {
       includeRevoked: true,
     });
     if (!matched) return;
 
-    await this.authRepository.revokeRefreshToken(matched.id);
+    await this.authRepository.revokeRefreshToken(matched.id, db);
+  }
+
+  private getRefreshExpiresAt() {
+    return new Date(Date.now() + this.refreshTtlSeconds * 1000);
   }
 }

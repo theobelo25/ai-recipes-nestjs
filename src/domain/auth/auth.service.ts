@@ -13,6 +13,7 @@ import {
   AUTH_REPOSITORY,
   type IAuthRepository,
 } from './infrastructure/auth.repository.interface';
+import { Db } from 'src/common/db/db.type';
 
 @Injectable()
 export class AuthService {
@@ -25,7 +26,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async signup(signupDto: SignupDto) {
+  async signup(signupDto: SignupDto, db?: Db) {
     const { username, email, password } = signupDto;
 
     const hashedPassword = await this.hashingService.hash(password);
@@ -35,6 +36,7 @@ export class AuthService {
         email,
       },
       hashedPassword,
+      db,
     );
   }
 

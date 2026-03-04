@@ -50,10 +50,13 @@ export class PrismaUsersRepository implements IUsersRepository {
     });
   }
 
-  async getPrivateUserByEmail(email: string, db?: Db): Promise<PrivateUser> {
+  async getPrivateUserByEmail(
+    email: string,
+    db?: Db,
+  ): Promise<PrivateUser | null> {
     const prisma = asPrismaDb(this.prisma, db);
 
-    return prisma.user.findUniqueOrThrow({
+    return prisma.user.findUnique({
       where: { email },
       select: PRIVATE_USER_SELECT,
     });

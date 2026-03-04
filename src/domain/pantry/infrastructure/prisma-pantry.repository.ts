@@ -52,7 +52,7 @@ export class PrismaPantryRepository implements IPantryRepository {
     db?: Db,
   ) {
     const prisma = asPrismaDb(this.prisma, db);
-    const { quantity, unit, notes } = pantryUpsertInput;
+    const { quantity, unit } = pantryUpsertInput;
 
     const pantryItem = await prisma.pantryItem.upsert({
       where: {
@@ -63,12 +63,10 @@ export class PrismaPantryRepository implements IPantryRepository {
         ingredientId,
         quantity,
         unit,
-        notes,
       },
       update: {
         ...(quantity !== undefined ? { quantity } : {}),
         ...(unit !== undefined ? { unit } : {}),
-        ...(notes !== undefined ? { notes } : {}),
       },
       include: { ingredient: INGREDIENT_SELECT },
     });
@@ -113,7 +111,6 @@ export class PrismaPantryRepository implements IPantryRepository {
       id: entity.id,
       quantity: entity.quantity,
       unit: entity.unit,
-      notes: entity.notes,
       updatedAt: entity.updatedAt,
 
       ingredient: {

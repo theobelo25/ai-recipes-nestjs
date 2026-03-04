@@ -5,9 +5,10 @@ import { PrismaRecipesRepository } from './infrastructure/prisma-recipes.reposit
 import { RecipeGeneratorService } from './ai/recipe-generator.service';
 import { AiModule } from '../ai/ai.module';
 import { RECIPES_REPOSITORY } from './infrastructure/recipes.repository.interface';
+import { IngredientsModule } from '../ingredients/ingredients.module';
 
 @Module({
-  imports: [AiModule],
+  imports: [AiModule, IngredientsModule],
   controllers: [RecipesController],
   providers: [
     RecipesService,

@@ -1,7 +1,15 @@
-// src/ai/validation/ai-json-validator.ts
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ValidateFunction } from 'ajv';
 import { ValidationService } from 'src/common/validation/validation.service';
+import {
+  AI_ERROR_CODES,
+  type AiErrorResponseBody,
+} from '../errors/ai-error-codes';
+import type { AllowedIngredientRef } from '../types';
+
+export type AiJsonValidatorContext = {
+  allowedIngredients?: AllowedIngredientRef[];
+};
 
 @Injectable()
 export class AiJsonValidator {
@@ -9,9 +17,17 @@ export class AiJsonValidator {
 
   constructor(private readonly validationService: ValidationService) {}
 
-  parseAndValidate<T>(rawText: string, schema: object): T {
+  parseAndValidate<T>(
+    rawText: string,
+    schema: object,
+    ctx?: AiJsonValidatorContext,
+  ): T {
     const data = this.parseJson(rawText);
     this.validateOrThrow(schema, data);
+    if (ctx?.allowedIngredients) {
+      this.validateExtrasClosureOrThrow(data, ctx.allowedIngredients);
+    }
+
     return data as T;
   }
 
@@ -28,11 +44,13 @@ export class AiJsonValidator {
       schemaPath: e.schemaPath,
     }));
 
-    throw new BadRequestException({
+    const body: AiErrorResponseBody = {
+      errorCode: AI_ERROR_CODES.AI_SCHEMA_VALIDATION_FAILED,
       message: 'AI returned JSON that does not match the expected schema.',
       errors,
       snippet: this.snippet(JSON.stringify(data)),
-    });
+    };
+    throw new BadRequestException(body);
   }
 
   private getOrCompile(schema: object): ValidateFunction {
@@ -59,10 +77,12 @@ export class AiJsonValidator {
         }
       }
 
-      throw new BadRequestException({
+      const body: AiErrorResponseBody = {
+        errorCode: AI_ERROR_CODES.AI_JSON_INVALID,
         message: 'AI returned invalid JSON.',
         snippet: this.snippet(trimmed),
-      });
+      };
+      throw new BadRequestException(body);
     }
   }
 
@@ -84,5 +104,121 @@ export class AiJsonValidator {
 
   private snippet(text: string, max = 800): string {
     return text.length <= max ? text : text.slice(0, max) + '…';
+  }
+
+  private validateExtrasClosureOrThrow(
+    recipe: unknown,
+    allowedIngredients: AllowedIngredientRef[],
+  ): void {
+    if (typeof recipe !== 'object' || recipe === null) return;
+    const r = recipe as Record<string, unknown>;
+
+    const title = typeof r.title === 'string' ? r.title : '';
+    const description = typeof r.description === 'string' ? r.description : '';
+    const instructions = Array.isArray(r.instructions)
+      ? r.instructions.filter((x): x is string => typeof x === 'string')
+      : [];
+
+    const extras = Array.isArray(r.extras)
+      ? r.extras
+          .filter(
+            (x): x is Record<string, unknown> =>
+              typeof x === 'object' && x !== null,
+          )
+          .map((x) => (typeof x.name === 'string' ? x.name : ''))
+          .filter((name) => name.length > 0)
+      : [];
+
+    const ingredientsIds = Array.isArray(r.ingredients)
+      ? r.ingredients
+          .filter(
+            (x): x is Record<string, unknown> =>
+              typeof x === 'object' && x !== null,
+          )
+          .map((x) =>
+            typeof x.ingredientId === 'string' ? x.ingredientId : '',
+          )
+          .filter((id) => id.length > 0)
+      : [];
+
+    const text = this.norm([title, description, ...instructions].join(' '));
+
+    const extrasSet = new Set(extras.map((x) => this.norm(x)));
+    const ingredientIdSet = new Set(ingredientsIds);
+
+    // Map normalized allowed name -> id
+    const allowedNameToId = new Map<string, string>();
+    for (const a of allowedIngredients) {
+      allowedNameToId.set(this.norm(a.name), a.id);
+    }
+
+    // Watchlist of common “assumed” items.
+    const watchList = [
+      'olive oil',
+      'salt',
+      'pepper',
+      'black pepper',
+      'garlic',
+      'herbs',
+      'butter',
+      'vegetables',
+    ];
+
+    const missingPantry: Array<{ name: string; id: string }> = [];
+    const missingExtras: string[] = [];
+
+    for (const item of watchList) {
+      const n = this.norm(item);
+
+      // Use substring match (more forgiving than token match)
+      if (!text.includes(n)) continue;
+
+      const pantryId = allowedNameToId.get(n);
+
+      if (pantryId) {
+        // Mentioned pantry item must be present in ingredients[]
+        if (!ingredientIdSet.has(pantryId)) {
+          missingPantry.push({ name: item, id: pantryId });
+        }
+      } else {
+        // Mentioned non-pantry item must be present in extras[]
+        if (!extrasSet.has(n)) {
+          missingExtras.push(item);
+        }
+      }
+    }
+
+    if (missingPantry.length || missingExtras.length) {
+      const body: AiErrorResponseBody = {
+        errorCode: AI_ERROR_CODES.AI_INGREDIENT_CLOSURE_VIOLATION,
+        message: 'AI output violates ingredient closure rules.',
+        errors: [
+          ...missingPantry.map((m) => ({
+            path: '/ingredients',
+            keyword: 'ingredientClosurePantry',
+            message: `Text references pantry item "${m.name}" but ingredientId "${m.id}" is missing from ingredients[].`,
+            schemaPath: '(domain)',
+          })),
+          ...missingExtras.map((m) => ({
+            path: '/extras',
+            keyword: 'ingredientClosureExtra',
+            message: `Text references "${m}" but it is not listed in extras[] (and is not a pantry item).`,
+            schemaPath: '(domain)',
+          })),
+        ],
+        snippet: this.snippet(
+          JSON.stringify({ missingPantry, missingExtras, text }).slice(0, 2000),
+        ),
+      };
+      throw new BadRequestException(body);
+    }
+  }
+
+  private norm(s: string): string {
+    return s
+      .toLowerCase()
+      .replace(/[^a-z0-9\s]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
   }
 }

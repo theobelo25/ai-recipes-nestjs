@@ -6,36 +6,43 @@ import {
   AI_ERROR_CODES,
   type AiErrorResponseBody,
 } from '../../errors/ai-error-codes';
-import {
-  type GeminiClientConfig,
-  type GeminiGenerateContentResponse,
-} from '../../types';
+import type {
+  GroqChatCompletionResponse,
+  GroqClientConfig,
+} from '../../types/groq.types';
 
 @Injectable()
-export class GeminiClient {
+export class GroqClient {
   constructor(private readonly http: HttpService) {}
 
   async generateText(
-    config: GeminiClientConfig,
+    config: GroqClientConfig,
     prompt: string,
   ): Promise<string> {
     const { apiKey, baseUrl, model } = config;
 
-    const url = `${baseUrl}/models/${model}:generateContent?key=${apiKey}`;
+    const url = `${baseUrl}/chat/completions`;
+
     const body = {
-      contents: [{ parts: [{ text: prompt }] }],
+      model,
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0,
     };
 
     try {
       const res = await firstValueFrom(
-        this.http.post<GeminiGenerateContentResponse>(url, body),
+        this.http.post<GroqChatCompletionResponse>(url, body, {
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+          },
+        }),
       );
+
       const data = res.data;
       const text =
-        data?.candidates?.[0]?.content?.parts
-          ?.map((p) => p.text)
-          .filter(Boolean)
-          .join('') ?? '';
+        data?.choices?.[0]?.message?.content !== undefined
+          ? data.choices[0].message.content
+          : '';
 
       return text;
     } catch (error: unknown) {
@@ -44,7 +51,7 @@ export class GeminiClient {
         const apiError: unknown = error.response?.data;
         const body: AiErrorResponseBody = {
           errorCode: AI_ERROR_CODES.AI_PROVIDER_UNAVAILABLE,
-          message: 'Gemini request failed.',
+          message: 'Groq request failed.',
           details: { status, ...(apiError != null && { apiError }) },
         };
         throw new ServiceUnavailableException(body);
@@ -52,7 +59,7 @@ export class GeminiClient {
 
       const body: AiErrorResponseBody = {
         errorCode: AI_ERROR_CODES.AI_PROVIDER_UNAVAILABLE,
-        message: 'Gemini request failed.',
+        message: 'Groq request failed.',
         details:
           error instanceof Error ? { message: error.message } : undefined,
       };

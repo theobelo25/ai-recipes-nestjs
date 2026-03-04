@@ -17,6 +17,6 @@ export interface IUsersRepository {
     hashedPassword: string,
     db?: Db,
   ): Promise<PublicUser>;
-  getPrivateUserByEmail(email: string, db?: Db): Promise<PrivateUser>;
+  getPrivateUserByEmail(email: string, db?: Db): Promise<PrivateUser | null>;
   getPrivateUserById(id: string, db?: Db): Promise<PrivateUser>;
 }

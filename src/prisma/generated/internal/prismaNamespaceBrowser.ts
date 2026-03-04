@@ -122,7 +122,6 @@ export const PantryItemScalarFieldEnum = {
   ingredientId: 'ingredientId',
   quantity: 'quantity',
   unit: 'unit',
-  notes: 'notes',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -155,7 +154,6 @@ export const RecipeIngredientScalarFieldEnum = {
   ingredientId: 'ingredientId',
   quantity: 'quantity',
   unit: 'unit',
-  note: 'note',
   sortOrder: 'sortOrder'
 } as const
 

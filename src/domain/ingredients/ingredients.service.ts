@@ -22,8 +22,16 @@ export class IngredientsService {
     return this.ingredientsRepository.create(createIngredientDto, slug, db);
   }
 
+  async createMany(items: Array<{ name: string; slug: string }>, db?: Db) {
+    return this.ingredientsRepository.createMany(items, db);
+  }
+
   async findAll(db?: Db) {
     return this.ingredientsRepository.findAll(db);
+  }
+
+  async findManyBySlug(slugs: string[], db?: Db) {
+    return this.ingredientsRepository.findManyBySlug(slugs, db);
   }
 
   async findOneBySlug(slug: string, db?: Db) {

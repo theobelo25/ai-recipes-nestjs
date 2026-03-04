@@ -10,6 +10,15 @@ export default registerAs('ai', () => {
       model: env.GEMINI_MODEL,
       baseUrl: env.GEMINI_BASE_URL,
     },
+    groq: {
+      apiKey: env.GROQ_API_KEY,
+      model: env.GROQ_MODEL,
+      baseUrl: env.GROQ_BASE_URL,
+    },
+    ollama: {
+      baseUrl: env.OLLAMA_BASE_URL,
+      model: env.OLLAMA_MODEL,
+    },
   } as const;
   return config;
 });

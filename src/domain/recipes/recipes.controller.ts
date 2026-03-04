@@ -12,11 +12,13 @@ import { RecipesService } from './recipes.service';
 import { User } from '../auth/decorators/user.decorator';
 import {
   CreateRecipeSchema,
+  type CreateRecipeDto,
   ReplaceRecipeIngredientsSchema,
   UpdateRecipeSchema,
-  type CreateRecipeDto,
   type ReplaceRecipeIngredientsDto,
   type UpdateRecipeDto,
+  type SaveGeneratedRecipeDto,
+  SaveGeneratedRecipeSchema,
 } from './types/recipes.schema';
 import { RouteSchema } from '@nestjs/platform-fastify';
 import {
@@ -24,6 +26,7 @@ import {
   type GenerateRecipeDto,
 } from './types/generate-recipe.schema';
 import { Public } from '../auth/decorators/public.decorator';
+import { type RequestUser } from '../auth/interfaces/request-user.interface';
 
 @Controller('recipes')
 export class RecipesController {
@@ -38,10 +41,32 @@ export class RecipesController {
     );
   }
 
+  @Get('me')
+  getUsersRecipes(@User() user: RequestUser) {
+    return this.recipesService.getUsersRecipes(user.id);
+  }
+
+  @Post('generated')
+  @RouteSchema({ body: SaveGeneratedRecipeSchema })
+  async saveGenerated(
+    @User() user: RequestUser,
+    @Body() saveGeneratedRecipeDto: SaveGeneratedRecipeDto,
+  ) {
+    return this.recipesService.saveGeneratedRecipe(
+      user.id,
+      saveGeneratedRecipeDto,
+    );
+  }
+
   @Public()
   @Get()
-  list() {
+  listAll() {
     return this.recipesService.list();
+  }
+
+  @Get('recent')
+  getUsersRecentRecipes(@User() user: RequestUser) {
+    return this.recipesService.getUsersRecentRecipes(user.id);
   }
 
   @Public()
@@ -52,34 +77,34 @@ export class RecipesController {
 
   @Post()
   @RouteSchema({ body: CreateRecipeSchema })
-  create(@User('id') userId: string, @Body() createRecipeDto: CreateRecipeDto) {
-    return this.recipesService.create(userId, createRecipeDto);
+  create(@User() user: RequestUser, @Body() createRecipeDto: CreateRecipeDto) {
+    return this.recipesService.create(user.id, createRecipeDto);
   }
 
   @Delete(':id')
-  remove(@User('id') userId: string, @Param('id') id: string) {
-    return this.recipesService.remove(userId, id);
+  remove(@User() user: RequestUser, @Param('id') id: string) {
+    return this.recipesService.remove(user.id, id);
   }
 
   @Patch(':id')
   @RouteSchema({ body: UpdateRecipeSchema })
   update(
-    @User('id') userId: string,
+    @User() user: RequestUser,
     @Param('id') id: string,
     @Body() updateRecipeDto: UpdateRecipeDto,
   ) {
-    return this.recipesService.update(userId, id, updateRecipeDto);
+    return this.recipesService.update(user.id, id, updateRecipeDto);
   }
 
   @Put(':id/ingredients')
   @RouteSchema({ body: ReplaceRecipeIngredientsSchema })
   replaceIngredients(
-    @User('id') userId: string,
+    @User() user: RequestUser,
     @Param('id') id: string,
     @Body() replaceRecipeIngredientsDto: ReplaceRecipeIngredientsDto,
   ) {
     return this.recipesService.replaceIngredients(
-      userId,
+      user.id,
       id,
       replaceRecipeIngredientsDto.ingredients,
     );

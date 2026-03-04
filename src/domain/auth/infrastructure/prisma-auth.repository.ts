@@ -50,16 +50,19 @@ export class PrismaAuthRepository implements IAuthRepository {
     });
   }
 
-  async markRefreshTokenReplaced(
+  async consumeAndReplaceRefreshToken(
     replaceRefreshTokenDTO: ReplaceRefreshTokenDTO,
     db?: Db,
-  ): Promise<void> {
+  ): Promise<boolean> {
     const prisma = asPrismaDb(this.prisma, db);
-    await prisma.refreshToken.update({
-      where: { id: replaceRefreshTokenDTO.currentId },
-      data: replaceRefreshTokenDTO,
-      select: { id: true },
+    const { currentId, replacedById, now } = replaceRefreshTokenDTO;
+
+    const res = await prisma.refreshToken.updateMany({
+      where: { id: currentId, revokedAt: null, replacedById: null },
+      data: { replacedById, revokedAt: now, lastUsedAt: now },
     });
+
+    return res.count === 1;
   }
 
   async revokeRefreshToken(id: string, db?: Db) {
@@ -72,13 +75,12 @@ export class PrismaAuthRepository implements IAuthRepository {
     });
   }
 
-  async revokeAllUserRefreshTokens(userId: string, db?: Db) {
+  async revokeAllUserRefreshTokens(userId: string, db?: Db, now?: Date) {
     const prisma = asPrismaDb(this.prisma, db);
-    const now = new Date();
 
     await prisma.refreshToken.updateMany({
       where: { userId, revokedAt: null },
-      data: { revokedAt: now },
+      data: { revokedAt: now ?? new Date() },
     });
   }
 }
