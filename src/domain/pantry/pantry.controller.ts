@@ -6,15 +6,10 @@ import {
   Patch,
   Param,
   Delete,
-  UseGuards,
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { PantryService } from './pantry.service';
-import {
-  JwtAuthGuard,
-  User,
-  type RequestUser,
-} from '../auth';
+import { User, type RequestUser } from '../auth';
 import {
   type UpdatePantryItemDto,
   type AddPantryItemDto,
@@ -23,7 +18,6 @@ import {
 } from './types';
 import { RouteSchema } from '@nestjs/platform-fastify';
 
-@UseGuards(JwtAuthGuard)
 @Controller('pantry')
 export class PantryController {
   constructor(private readonly pantryService: PantryService) {}
