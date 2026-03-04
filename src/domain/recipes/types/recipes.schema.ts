@@ -114,4 +114,6 @@ export const SaveGeneratedRecipeSchema = Type.Object(
   { additionalProperties: false },
 );
 
-export type SaveGeneratedRecipeDto = typeof SaveGeneratedRecipeSchema.static;
+export type SaveGeneratedRecipeDto = Static<
+  typeof SaveGeneratedRecipeSchema
+>;

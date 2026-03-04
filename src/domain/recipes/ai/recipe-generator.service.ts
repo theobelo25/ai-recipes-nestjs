@@ -6,6 +6,7 @@ import {
 } from './ai-create-recipe.schema';
 import { slugify } from 'src/common/utils/slugify';
 import { IngredientsService } from 'src/domain/ingredients';
+import { MissingIngredientsException } from '../exceptions/missing-ingredients.exception';
 
 @Injectable()
 export class RecipeGeneratorService {
@@ -81,8 +82,7 @@ export class RecipeGeneratorService {
     if (found.length !== slugs.length) {
       const foundNames = new Set(found.map((f) => f.name.toLowerCase()));
       const missing = names.filter((n) => !foundNames.has(n));
-
-      throw new Error(`Missing ingredients in database: ${missing.join(', ')}`);
+      throw new MissingIngredientsException(missing);
     }
 
     return found;

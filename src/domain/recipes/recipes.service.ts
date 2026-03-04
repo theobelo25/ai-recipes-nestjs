@@ -40,7 +40,7 @@ export class RecipesService {
   constructor(
     @Inject(RECIPES_REPOSITORY)
     private readonly recipesRepository: IRecipesRepository,
-    private readonly ingredientsSerivce: IngredientsService,
+    private readonly ingredientsService: IngredientsService,
     private readonly recipeGenerator: RecipeGeneratorService,
     @Inject(UNIT_OF_WORK) private readonly uow: IUnitOfWork,
   ) {}
@@ -253,19 +253,19 @@ export class RecipesService {
 
     const slugs = unique.map((u) => u.slug);
 
-    const existing = await this.ingredientsSerivce.findManyBySlug(slugs, db);
+    const existing = await this.ingredientsService.findManyBySlug(slugs, db);
 
     const existingMap = new Map(existing.map((i) => [i.slug, i]));
 
     const missing = unique.filter((u) => !existingMap.has(u.slug));
     if (missing.length) {
-      await this.ingredientsSerivce.createMany(
+      await this.ingredientsService.createMany(
         missing.map((m) => ({ name: m.name, slug: m.slug })),
         db,
       );
     }
 
-    const allNow = await this.ingredientsSerivce.findManyBySlug(slugs, db);
+    const allNow = await this.ingredientsService.findManyBySlug(slugs, db);
 
     const allMap = new Map(allNow.map((i) => [i.slug, i]));
 

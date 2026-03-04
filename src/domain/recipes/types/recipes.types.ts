@@ -44,3 +44,24 @@ export type CreateRecipeData = {
 };
 
 export type UpdateRecipeData = Partial<Omit<CreateRecipeData, 'authorId'>>;
+
+/** Ingredient row for createFromGenerated (repository layer). */
+export type CreateFromGeneratedIngredient = {
+  ingredientId: string;
+  quantity: number | null;
+  unit: string | null;
+  sortOrder: number;
+};
+
+/** Payload for creating a recipe from AI-generated data. */
+export type CreateFromGeneratedData = {
+  title: string;
+  description: string;
+  instructions: string[];
+  servings: number;
+  prepMinutes: number;
+  cookMinutes: number;
+  sourceUrl: string | null;
+  sourceName: string | null;
+  ingredients: CreateFromGeneratedIngredient[];
+};

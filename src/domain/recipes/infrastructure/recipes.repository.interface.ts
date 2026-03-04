@@ -1,6 +1,7 @@
 import { RecipeIngredientInputDto } from '../types/recipes.schema';
 import {
   CreateRecipeData,
+  CreateFromGeneratedData,
   RecipeView,
   UpdateRecipeData,
 } from '../types/recipes.types';
@@ -21,23 +22,8 @@ export interface IRecipesRepository {
   create(data: CreateRecipeData, db?: Db): Promise<RecipeView>;
   createFromGenerated(
     userId: string,
-    data: {
-      title: string;
-      description: string;
-      instructions: string[];
-      servings: number;
-      prepMinutes: number;
-      cookMinutes: number;
-      sourceUrl: string | null;
-      sourceName: string | null;
-      ingredients: Array<{
-        ingredientId: string;
-        quantity: number | null;
-        unit: string | null;
-        sortOrder: number;
-      }>;
-    },
-    db?: unknown,
+    data: CreateFromGeneratedData,
+    db?: Db,
   ): Promise<RecipeView>;
   update(
     recipeId: string,

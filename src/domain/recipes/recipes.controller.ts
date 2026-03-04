@@ -4,9 +4,10 @@ import {
   Delete,
   Get,
   Param,
+  ParseUUIDPipe,
+  Patch,
   Post,
   Put,
-  Patch,
 } from '@nestjs/common';
 import { RecipesService } from './recipes.service';
 import {
@@ -84,7 +85,10 @@ export class RecipesController {
   }
 
   @Delete(':id')
-  remove(@User() user: RequestUser, @Param('id') id: string) {
+  remove(
+    @User() user: RequestUser,
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ) {
     return this.recipesService.remove(user.id, id);
   }
 
@@ -92,7 +96,7 @@ export class RecipesController {
   @RouteSchema({ body: UpdateRecipeSchema })
   update(
     @User() user: RequestUser,
-    @Param('id') id: string,
+    @Param('id', new ParseUUIDPipe()) id: string,
     @Body() updateRecipeDto: UpdateRecipeDto,
   ) {
     return this.recipesService.update(user.id, id, updateRecipeDto);
@@ -102,7 +106,7 @@ export class RecipesController {
   @RouteSchema({ body: ReplaceRecipeIngredientsSchema })
   replaceIngredients(
     @User() user: RequestUser,
-    @Param('id') id: string,
+    @Param('id', new ParseUUIDPipe()) id: string,
     @Body() replaceRecipeIngredientsDto: ReplaceRecipeIngredientsDto,
   ) {
     return this.recipesService.replaceIngredients(

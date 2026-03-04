@@ -14,8 +14,7 @@ import { IngredientsModule } from '../ingredients';
   providers: [
     RecipesService,
     RecipeGeneratorService,
-    PrismaRecipesRepository,
-    { provide: RECIPES_REPOSITORY, useExisting: PrismaRecipesRepository },
+    { provide: RECIPES_REPOSITORY, useClass: PrismaRecipesRepository },
   ],
   exports: [RecipesService],
 })

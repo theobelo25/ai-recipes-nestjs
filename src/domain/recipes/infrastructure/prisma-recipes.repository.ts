@@ -4,6 +4,7 @@ import { RecipeIngredientInputDto } from '../types/recipes.schema';
 import { RECIPE_INCLUDE } from '../types/recipes.constants';
 import {
   CreateRecipeData,
+  CreateFromGeneratedData,
   RecipeView,
   UpdateRecipeData,
 } from '../types/recipes.types';
@@ -36,21 +37,25 @@ export class PrismaRecipesRepository implements IRecipesRepository {
     return rows.map((r) => this.toView(r));
   }
 
-  async findManyByUserId(userId: string, db?: Db) {
+  async findManyByUserId(userId: string, db?: Db): Promise<RecipeView[]> {
     const prisma = asPrismaDb(this.prisma, db);
-    return await prisma.recipe.findMany({
+    const rows = await prisma.recipe.findMany({
       where: { authorId: userId },
+      orderBy: { updatedAt: 'desc' },
       include: this.include(),
     });
+    return rows.map((r) => this.toView(r));
   }
 
-  async findRecentByUserId(userId: string, db?: Db) {
+  async findRecentByUserId(userId: string, db?: Db): Promise<RecipeView[]> {
     const prisma = asPrismaDb(this.prisma, db);
-    return await prisma.recipe.findMany({
+    const rows = await prisma.recipe.findMany({
       where: { authorId: userId },
-      include: this.include(),
+      orderBy: { updatedAt: 'desc' },
       take: 3,
+      include: this.include(),
     });
+    return rows.map((r) => this.toView(r));
   }
 
   async findBySlug(slug: string, db?: Db): Promise<RecipeView> {
@@ -191,22 +196,7 @@ export class PrismaRecipesRepository implements IRecipesRepository {
 
   async createFromGenerated(
     userId: string,
-    data: {
-      title: string;
-      description: string;
-      instructions: string[];
-      servings: number;
-      prepMinutes: number;
-      cookMinutes: number;
-      sourceUrl: string | null;
-      sourceName: string | null;
-      ingredients: Array<{
-        ingredientId: string;
-        quantity: number | null;
-        unit: string | null;
-        sortOrder: number;
-      }>;
-    },
+    data: CreateFromGeneratedData,
     db?: Db,
   ): Promise<RecipeView> {
     const prisma = asPrismaDb(this.prisma, db);
