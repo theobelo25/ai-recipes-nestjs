@@ -20,42 +20,33 @@ import { appConfig } from './config';
 
 @Module({
   imports: [
-    AiModule,
-    ValidationModule,
-    UsersModule,
-    PrismaModule,
-    EnvModule,
-    AuthModule,
-    ThrottlerModule.forRoot([
-      {
-        name: 'default',
-        ttl: 60_000, // 60s window
-        limit: 120, // 120 req/min per IP
-      },
-    ]),
+    // Config & env first (other modules may depend on them)
     ConfigModule.forRoot({
       isGlobal: true,
       load: [appConfig, aiConfig],
     }),
+    EnvModule,
+    // Infrastructure
+    PrismaModule,
+    ValidationModule,
+    ThrottlerModule.forRoot([
+      { name: 'default', ttl: 60_000, limit: 120 },
+    ]),
+    // Domain
+    AiModule,
+    AuthModule,
     IngredientsModule,
     PantryModule,
     RecipesModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [
     AppService,
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard,
-    },
-    {
-      provide: APP_FILTER,
-      useClass: PrismaExceptionFilter,
-    },
-    {
-      provide: APP_FILTER,
-      useClass: ValidationExceptionFilter,
-    },
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+    // Order: last registered runs first when exception is thrown
+    { provide: APP_FILTER, useClass: ValidationExceptionFilter },
+    { provide: APP_FILTER, useClass: PrismaExceptionFilter },
   ],
 })
 export class AppModule {}

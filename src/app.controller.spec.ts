@@ -15,8 +15,11 @@ describe('AppController', () => {
   });
 
   describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
+    it('should return app name and status', () => {
+      expect(appController.getRoot()).toEqual({
+        name: 'ai-recipes',
+        status: 'ok',
+      });
     });
   });
 });
