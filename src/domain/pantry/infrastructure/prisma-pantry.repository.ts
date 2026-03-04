@@ -1,12 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { INGREDIENT_SELECT } from '../types/pantry.constants';
-import { PantryUpsertInput, UpdatePantryItemDto } from '../types/pantry.schema';
+import { INGREDIENT_SELECT } from './prisma-pantry.constants';
+import {
+  PantryUpsertInput,
+  UpdatePantryItemDto,
+  PantryItemDto,
+} from '../types';
 import { IPantryRepository } from './pantry.repository.interface';
 import { Db } from 'src/common/db/db.type';
 import { asPrismaDb } from 'src/prisma/prisma-db.util';
 import { Prisma } from 'src/prisma/generated/client';
-import { PantryItemDto } from '../types/pantry.types';
 
 type PrismaPantryItemWithIngredient = Prisma.PantryItemGetPayload<{
   include: {
@@ -92,7 +95,8 @@ export class PrismaPantryRepository implements IPantryRepository {
       },
     });
 
-    return this.toPantryItemDto(result[0]) ?? null;
+    const first = result[0];
+    return first != null ? this.toPantryItemDto(first) : null;
   }
 
   async removePantryItem(userId: string, pantryItemId: string, db?: Db) {

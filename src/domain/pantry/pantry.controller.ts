@@ -20,7 +20,7 @@ import {
   type AddPantryItemDto,
   AddPantryItemSchema,
   UpdatePantryItemSchema,
-} from './types/pantry.schema';
+} from './types';
 import { RouteSchema } from '@nestjs/platform-fastify';
 
 @UseGuards(JwtAuthGuard)
@@ -29,13 +29,13 @@ export class PantryController {
   constructor(private readonly pantryService: PantryService) {}
 
   @Get()
-  list(@User() user: RequestUser) {
-    return this.pantryService.list(user.id);
+  findAll(@User() user: RequestUser) {
+    return this.pantryService.findAll(user.id);
   }
 
   @Get('recent')
-  listRecent(@User() user: RequestUser) {
-    return this.pantryService.listRecent(user.id);
+  findRecent(@User() user: RequestUser) {
+    return this.pantryService.findRecent(user.id);
   }
 
   @Post()

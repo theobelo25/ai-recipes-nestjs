@@ -9,7 +9,7 @@ import { AuthModule } from './domain/auth/auth.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { IngredientsModule } from './domain/ingredients';
-import { PantryModule } from './domain/pantry/pantry.module';
+import { PantryModule } from './domain/pantry';
 import { RecipesModule } from './domain/recipes/recipes.module';
 import { AiModule } from './domain/ai/ai.module';
 import { ConfigModule } from '@nestjs/config';

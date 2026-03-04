@@ -1,6 +1,9 @@
 import { Db } from 'src/common/db/db.type';
-import { PantryUpsertInput, UpdatePantryItemDto } from '../types/pantry.schema';
-import { PantryItemDto } from '../types/pantry.types';
+import {
+  PantryUpsertInput,
+  UpdatePantryItemDto,
+  PantryItemDto,
+} from '../types';
 
 export const PANTRY_REPOSITORY = Symbol('PANTRY_REPOSITORY');
 

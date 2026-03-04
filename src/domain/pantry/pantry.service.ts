@@ -1,5 +1,5 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { AddPantryItemDto, UpdatePantryItemDto } from './types/pantry.schema';
+import { AddPantryItemDto, UpdatePantryItemDto } from './types';
 import {
   type IPantryRepository,
   PANTRY_REPOSITORY,
@@ -19,11 +19,11 @@ export class PantryService {
     @Inject(UNIT_OF_WORK) private readonly uow: IUnitOfWork,
   ) {}
 
-  async list(userId: string) {
+  async findAll(userId: string) {
     return this.pantryRepository.getPantryItems(userId);
   }
 
-  async listRecent(userId: string) {
+  async findRecent(userId: string) {
     return this.pantryRepository.getRecentPantryItems(userId);
   }
 
@@ -62,13 +62,11 @@ export class PantryService {
     return updated;
   }
 
-  async remove(userId: string, pantryItemId: string) {
+  async remove(userId: string, pantryItemId: string): Promise<void> {
     const ok = await this.pantryRepository.removePantryItem(
       userId,
       pantryItemId,
     );
     if (!ok) throw new NotFoundException('Pantry item not found.');
-
-    return { ok: true };
   }
 }
