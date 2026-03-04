@@ -8,6 +8,10 @@ import type { FastifyRequest } from 'fastify';
 
 import { RefreshTokenService } from '../../refreshToken/refresh-tokens.service';
 import { REFRESH_COOKIE } from '../../types/auth.constants';
+import {
+  AUTH_ERROR_CODES,
+  type AuthErrorResponseBody,
+} from '../../errors/auth-error-codes';
 
 @Injectable()
 export class RefreshRotateGuard implements CanActivate {
@@ -17,7 +21,13 @@ export class RefreshRotateGuard implements CanActivate {
     const req = ctx.switchToHttp().getRequest<FastifyRequest>();
 
     const raw = req.cookies?.[REFRESH_COOKIE];
-    if (!raw) throw new UnauthorizedException('Missing refresh token.');
+    if (!raw) {
+      const body: AuthErrorResponseBody = {
+        errorCode: AUTH_ERROR_CODES.AUTH_REFRESH_MISSING,
+        message: 'Missing refresh token.',
+      };
+      throw new UnauthorizedException(body);
+    }
 
     const { userId, nextRaw } = await this.refreshTokenService.rotate(raw);
 

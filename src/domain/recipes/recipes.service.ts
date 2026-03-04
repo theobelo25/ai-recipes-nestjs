@@ -27,6 +27,10 @@ import {
   type IUnitOfWork,
 } from 'src/common/uow/unit-of-work.interface';
 import { IngredientsService } from '../ingredients';
+import {
+  RECIPES_ERROR_CODES,
+  type RecipesErrorResponseBody,
+} from './errors/recipes-error-codes';
 
 type ExtraResolved = {
   ingredientId: string;
@@ -93,9 +97,11 @@ export class RecipesService {
     const seen = new Set<string>();
     for (const ri of dto.ingredients) {
       if (seen.has(ri.ingredientId)) {
-        throw new BadRequestException(
-          'Duplicate ingredientId in ingredients[]',
-        );
+        const body: RecipesErrorResponseBody = {
+          errorCode: RECIPES_ERROR_CODES.RECIPE_DUPLICATE_INGREDIENT,
+          message: 'Duplicate ingredientId in ingredients[]',
+        };
+        throw new BadRequestException(body);
       }
       seen.add(ri.ingredientId);
     }
@@ -219,7 +225,11 @@ export class RecipesService {
   private async assertOwner(authorId: string, recipeId: string, db?: Db) {
     const recipe = await this.recipesRepository.findByIdMinimal(recipeId, db);
     if (recipe.authorId !== authorId) {
-      throw new NotFoundException('Recipe not found');
+      const body: RecipesErrorResponseBody = {
+        errorCode: RECIPES_ERROR_CODES.RECIPE_NOT_FOUND,
+        message: 'Recipe not found',
+      };
+      throw new NotFoundException(body);
     }
   }
 
@@ -272,9 +282,12 @@ export class RecipesService {
     return unique.map((u) => {
       const ing = allMap.get(u.slug);
       if (!ing) {
-        throw new BadRequestException(
-          `Failed to resolve extra ingredient: ${u.name}`,
-        );
+        const body: RecipesErrorResponseBody = {
+          errorCode: RECIPES_ERROR_CODES.RECIPE_EXTRA_RESOLVE_FAILED,
+          message: `Failed to resolve extra ingredient: ${u.name}`,
+          ingredientName: u.name,
+        };
+        throw new BadRequestException(body);
       }
 
       return {

@@ -1,6 +1,10 @@
 import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import { AuthService } from '../auth.service';
 import { UsersService } from 'src/domain/users/users.service';
+import {
+  AUTH_ERROR_CODES,
+  type AuthErrorResponseBody,
+} from '../errors/auth-error-codes';
 import { AuthCookiesService } from '../cookies/auth-cookies.service';
 import { RefreshTokenService } from '../refreshToken/refresh-tokens.service';
 import { SignupDto } from '../types/auth.schema';
@@ -24,10 +28,13 @@ export class AuthFlowService {
     const existingUser = await this.usersService.findPrivateUserByEmail(
       signupDto.email,
     );
-    if (existingUser)
-      throw new ConflictException(
-        'A user with this email address already exists.',
-      );
+    if (existingUser) {
+      const body: AuthErrorResponseBody = {
+        errorCode: AUTH_ERROR_CODES.AUTH_EMAIL_ALREADY_EXISTS,
+        message: 'A user with this email address already exists.',
+      };
+      throw new ConflictException(body);
+    }
 
     const { user, rawRefresh } = await this.uow.transaction(async (tx) => {
       const user = await this.authService.signup(signupDto, tx);

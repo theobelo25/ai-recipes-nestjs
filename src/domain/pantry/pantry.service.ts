@@ -6,6 +6,10 @@ import {
 } from './infrastructure/pantry.repository.interface';
 import { IngredientsService } from '../ingredients';
 import {
+  PANTRY_ERROR_CODES,
+  type PantryErrorResponseBody,
+} from './errors/pantry-error-codes';
+import {
   type IUnitOfWork,
   UNIT_OF_WORK,
 } from 'src/common/uow/unit-of-work.interface';
@@ -57,7 +61,13 @@ export class PantryService {
       pantryItemId,
       updatePantryItemDto,
     );
-    if (!updated) throw new NotFoundException('Pantry item not found.');
+    if (!updated) {
+      const body: PantryErrorResponseBody = {
+        errorCode: PANTRY_ERROR_CODES.PANTRY_ITEM_NOT_FOUND,
+        message: 'Pantry item not found.',
+      };
+      throw new NotFoundException(body);
+    }
 
     return updated;
   }
@@ -67,6 +77,12 @@ export class PantryService {
       userId,
       pantryItemId,
     );
-    if (!ok) throw new NotFoundException('Pantry item not found.');
+    if (!ok) {
+      const body: PantryErrorResponseBody = {
+        errorCode: PANTRY_ERROR_CODES.PANTRY_ITEM_NOT_FOUND,
+        message: 'Pantry item not found.',
+      };
+      throw new NotFoundException(body);
+    }
   }
 }

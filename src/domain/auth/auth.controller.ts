@@ -30,6 +30,10 @@ import { AuthFlowService } from './authFlow/auth-flow.service';
 import { AuthCookiesService } from './cookies/auth-cookies.service';
 import { RotatedRefreshToken } from './decorators/rotated-refresh.decorator';
 import { AuthService } from './auth.service';
+import {
+  AUTH_ERROR_CODES,
+  type AuthErrorResponseBody,
+} from './errors/auth-error-codes';
 
 @Controller('auth')
 export class AuthController {
@@ -75,8 +79,13 @@ export class AuthController {
     @RotatedRefreshToken() nextRaw: string | undefined,
     @Res({ passthrough: true }) reply: FastifyReply,
   ) {
-    if (!nextRaw)
-      throw new InternalServerErrorException('Rotated refresh token missing.');
+    if (!nextRaw) {
+      const body: AuthErrorResponseBody = {
+        errorCode: AUTH_ERROR_CODES.AUTH_REFRESH_ROTATED_MISSING,
+        message: 'Rotated refresh token missing.',
+      };
+      throw new InternalServerErrorException(body);
+    }
 
     this.authCookiesService.setRefresh(reply, nextRaw);
     return await this.authFlowService.updateAccessTokenOnRefresh(id);

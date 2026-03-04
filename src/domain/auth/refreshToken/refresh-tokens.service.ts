@@ -1,6 +1,10 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { type ConfigType } from '@nestjs/config';
 import { HashingService } from '../hashing/hashing.service';
+import {
+  AUTH_ERROR_CODES,
+  type AuthErrorResponseBody,
+} from '../errors/auth-error-codes';
 import { randomBytes, createHmac } from 'node:crypto';
 import { refreshTokenConfig } from '../config/refresh-token.config';
 import {
@@ -76,14 +80,25 @@ export class RefreshTokenService {
     const matched = await this.findByRaw(raw, {
       includeRevoked: true,
     });
-    if (!matched) throw new UnauthorizedException('Invalid refresh token');
+    if (!matched) {
+      const body: AuthErrorResponseBody = {
+        errorCode: AUTH_ERROR_CODES.AUTH_REFRESH_INVALID,
+        message: 'Invalid refresh token',
+      };
+      throw new UnauthorizedException(body);
+    }
 
     const now = new Date();
 
     return this.uow.transaction(async (tx) => {
       const current = await this.authRepository.findByTokenId(matched.id, tx);
-      if (current.expiresAt <= now)
-        throw new UnauthorizedException('Invalid refresh token');
+      if (current.expiresAt <= now) {
+        const body: AuthErrorResponseBody = {
+          errorCode: AUTH_ERROR_CODES.AUTH_REFRESH_INVALID,
+          message: 'Invalid refresh token',
+        };
+        throw new UnauthorizedException(body);
+      }
 
       if (current.revokedAt) {
         await this.authRepository.revokeAllUserRefreshTokens(
@@ -91,7 +106,11 @@ export class RefreshTokenService {
           tx,
           now,
         );
-        throw new UnauthorizedException('Refresh token reuse detected');
+        const body: AuthErrorResponseBody = {
+          errorCode: AUTH_ERROR_CODES.AUTH_REFRESH_REUSE_DETECTED,
+          message: 'Refresh token reuse detected',
+        };
+        throw new UnauthorizedException(body);
       }
 
       const nextRaw = this.generateRefreshToken();
@@ -126,7 +145,11 @@ export class RefreshTokenService {
           tx,
           now,
         );
-        throw new UnauthorizedException('Refresh token reuse detected');
+        const body: AuthErrorResponseBody = {
+          errorCode: AUTH_ERROR_CODES.AUTH_REFRESH_REUSE_DETECTED,
+          message: 'Refresh token reuse detected',
+        };
+        throw new UnauthorizedException(body);
       }
 
       return { userId: matched.userId, nextRaw };

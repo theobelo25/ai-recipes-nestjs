@@ -1,6 +1,10 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { HashingService } from './hashing/hashing.service';
 import { UsersService } from 'src/domain/users/users.service';
+import {
+  AUTH_ERROR_CODES,
+  type AuthErrorResponseBody,
+} from './errors/auth-error-codes';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { RequestUser } from './interfaces/request-user.interface';
@@ -42,10 +46,22 @@ export class AuthService {
 
   async validateLocal(email: string, password: string) {
     const user = await this.usersService.findPrivateUserByEmail(email);
-    if (!user) throw new UnauthorizedException('Invalid credentials.');
+    if (!user) {
+      const body: AuthErrorResponseBody = {
+        errorCode: AUTH_ERROR_CODES.AUTH_INVALID_CREDENTIALS,
+        message: 'Invalid credentials.',
+      };
+      throw new UnauthorizedException(body);
+    }
 
     const isMatch = await this.hashingService.compare(password, user.password);
-    if (!isMatch) throw new UnauthorizedException('Invalid credentials.');
+    if (!isMatch) {
+      const body: AuthErrorResponseBody = {
+        errorCode: AUTH_ERROR_CODES.AUTH_INVALID_CREDENTIALS,
+        message: 'Invalid credentials.',
+      };
+      throw new UnauthorizedException(body);
+    }
 
     const requestUser: RequestUser = { id: user.id };
     return requestUser;
@@ -53,7 +69,13 @@ export class AuthService {
 
   async validateJwt({ sub }: JwtPayload) {
     const user = await this.usersService.findPrivateUserById(sub);
-    if (!user) throw new UnauthorizedException('Invalid token.');
+    if (!user) {
+      const body: AuthErrorResponseBody = {
+        errorCode: AUTH_ERROR_CODES.AUTH_INVALID_TOKEN,
+        message: 'Invalid token.',
+      };
+      throw new UnauthorizedException(body);
+    }
 
     const requestUser: RequestUser = { id: user.id };
     return requestUser;
@@ -62,7 +84,13 @@ export class AuthService {
   async signAccessToken(userId: string): Promise<string> {
     const payload: JwtPayload = { sub: userId };
     const accessToken = await this.jwtService.signAsync(payload);
-    if (!accessToken) throw new UnauthorizedException('Problem signing token.');
+    if (!accessToken) {
+      const body: AuthErrorResponseBody = {
+        errorCode: AUTH_ERROR_CODES.AUTH_TOKEN_SIGN_FAILED,
+        message: 'Problem signing token.',
+      };
+      throw new UnauthorizedException(body);
+    }
 
     return accessToken;
   }
@@ -76,8 +104,13 @@ export class AuthService {
       oldPassword,
       user.password,
     );
-    if (!passwordMatches)
-      throw new UnauthorizedException('User not authorized.');
+    if (!passwordMatches) {
+      const body: AuthErrorResponseBody = {
+        errorCode: AUTH_ERROR_CODES.AUTH_USER_NOT_AUTHORIZED,
+        message: 'User not authorized.',
+      };
+      throw new UnauthorizedException(body);
+    }
 
     const newHashedPassword = await this.hashingService.hash(newPassword);
 
