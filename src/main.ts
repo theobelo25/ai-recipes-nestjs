@@ -17,9 +17,12 @@ import { helmetConfig, corsConfig, cookieConfig } from './config/';
 const logger = new Logger('Bootstrap');
 
 async function bootstrap() {
+  const adapter = new FastifyAdapter();
+  adapter.enableCors(corsConfig);
+
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
-    new FastifyAdapter(),
+    adapter,
   );
 
   const validationModule = app.get(ValidationModule);
@@ -29,7 +32,6 @@ async function bootstrap() {
   const port = configService.get<number>('APP_PORT') ?? 3000;
 
   await app.register(fastifyCookie, cookieConfig);
-  app.enableCors(corsConfig);
   await app.register(helmet, helmetConfig);
 
   await app.listen(port);
