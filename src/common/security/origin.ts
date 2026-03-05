@@ -1,8 +1,6 @@
 import { ForbiddenException } from '@nestjs/common';
 import { FastifyRequest } from 'fastify';
-import { allowedOrigins } from 'src/config';
-
-const allowedOriginsSet = new Set(allowedOrigins);
+import { isOriginAllowed } from 'src/config';
 
 export function assertValidOrigin(req: FastifyRequest) {
   const origin = req.headers.origin;
@@ -12,7 +10,7 @@ export function assertValidOrigin(req: FastifyRequest) {
     throw new ForbiddenException('Missing Origin header');
   }
 
-  if (!allowedOriginsSet.has(origin)) {
+  if (!isOriginAllowed(origin)) {
     throw new ForbiddenException('Invalid Origin');
   }
 }
