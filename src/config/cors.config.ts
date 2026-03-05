@@ -24,17 +24,19 @@ const originPatterns = corsOriginsRaw
   .filter((o) => o.includes('*'))
   .map(patternToRegex);
 
-/** Built-in: allow Dokploy/Traefik preview origins so *.traefik.me works without configuring CORS_ORIGINS. */
-const TRAEFIK_ORIGIN_REGEXES = [
+/** Built-in: allow Dokploy/Traefik preview origins and production domains without configuring CORS_ORIGINS. */
+const BUILTIN_ORIGIN_REGEXES = [
   patternToRegex('http://*.traefik.me'),
   patternToRegex('https://*.traefik.me'),
+  patternToRegex('https://*.theocodes.dev'),
+  patternToRegex('http://*.theocodes.dev'),
 ];
 
 /** Check if an origin is allowed (exact match, CORS_ORIGINS patterns, or built-in *.traefik.me). */
 export function isOriginAllowed(origin: string): boolean {
   if (allowedOrigins.includes(origin)) return true;
   if (originPatterns.some((re) => re.test(origin))) return true;
-  if (TRAEFIK_ORIGIN_REGEXES.some((re) => re.test(origin))) return true;
+  if (BUILTIN_ORIGIN_REGEXES.some((re) => re.test(origin))) return true;
   return false;
 }
 
