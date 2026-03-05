@@ -10,20 +10,32 @@ const corsOriginsRaw = (env.CORS_ORIGINS ?? env.FRONTEND_ORIGIN ?? '')
 /** Exact origins (no wildcard). */
 export const allowedOrigins = corsOriginsRaw.filter((o) => !o.includes('*'));
 
-/** Patterns like "http://*.traefik.me" – * matches one or more chars in the host. */
+/** Turn a pattern like "http://*.traefik.me" into a regex; * matches one or more chars in the host. */
+function patternToRegex(pattern: string): RegExp {
+  return new RegExp(
+    '^' +
+      pattern.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '[^/]+') +
+      '$',
+  );
+}
+
+/** Patterns from CORS_ORIGINS (e.g. "http://*.traefik.me"). */
 const originPatterns = corsOriginsRaw
   .filter((o) => o.includes('*'))
-  .map((pattern) => {
-    const regex = new RegExp(
-      '^' + pattern.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '[^/]+') + '$',
-    );
-    return regex;
-  });
+  .map(patternToRegex);
 
-/** Check if an origin is allowed (exact match or wildcard pattern). Use for CORS and Origin guard. */
+/** Built-in: allow Dokploy/Traefik preview origins so *.traefik.me works without configuring CORS_ORIGINS. */
+const TRAEFIK_ORIGIN_REGEXES = [
+  patternToRegex('http://*.traefik.me'),
+  patternToRegex('https://*.traefik.me'),
+];
+
+/** Check if an origin is allowed (exact match, CORS_ORIGINS patterns, or built-in *.traefik.me). */
 export function isOriginAllowed(origin: string): boolean {
   if (allowedOrigins.includes(origin)) return true;
-  return originPatterns.some((re) => re.test(origin));
+  if (originPatterns.some((re) => re.test(origin))) return true;
+  if (TRAEFIK_ORIGIN_REGEXES.some((re) => re.test(origin))) return true;
+  return false;
 }
 
 export const corsConfig: FastifyCorsOptions = {
@@ -43,4 +55,6 @@ export const corsConfig: FastifyCorsOptions = {
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
+  preflightContinue: false,
+  strictPreflight: false,
 };

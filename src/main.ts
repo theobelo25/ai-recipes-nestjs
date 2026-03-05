@@ -12,18 +12,21 @@ import { ValidationModule } from './common/validation/validation.module';
 import { ConfigService } from '@nestjs/config';
 import fastifyCookie from '@fastify/cookie';
 import helmet from '@fastify/helmet';
+import cors from '@fastify/cors';
 import { helmetConfig, corsConfig, cookieConfig } from './config/';
 
 const logger = new Logger('Bootstrap');
 
 async function bootstrap() {
   const adapter = new FastifyAdapter();
-  adapter.enableCors(corsConfig);
 
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     adapter,
   );
+
+  const fastify = app.getHttpAdapter().getInstance();
+  await fastify.register(cors, corsConfig);
 
   const validationModule = app.get(ValidationModule);
   validationModule.configure(app);
