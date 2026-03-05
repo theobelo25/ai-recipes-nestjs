@@ -1,4 +1,4 @@
-// src/domains/recipes/dto/generate-recipe.dto.ts
+// src/domain/recipes/types/generate-recipe.schema.ts
 import { Type, Static } from '@sinclair/typebox';
 
 export const GenerateRecipeSchema = Type.Object(

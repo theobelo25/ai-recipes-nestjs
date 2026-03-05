@@ -7,10 +7,9 @@ import { AuthModule } from '../auth/auth.module';
 import { AiModule } from '../ai/ai.module';
 import { RECIPES_REPOSITORY } from './infrastructure/recipes.repository.interface';
 import { IngredientsModule } from '../ingredients';
-import { PrismaModule } from 'src/prisma/prisma.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, AiModule, IngredientsModule],
+  imports: [AuthModule, AiModule, IngredientsModule],
   controllers: [RecipesController],
   providers: [
     PrismaRecipesRepository,
