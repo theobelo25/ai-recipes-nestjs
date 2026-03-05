@@ -49,10 +49,7 @@ async function bootstrap() {
       'Access-Control-Allow-Methods',
       'GET, POST, PUT, PATCH, DELETE, OPTIONS',
     );
-    reply.header(
-      'Access-Control-Allow-Headers',
-      'Content-Type, Authorization',
-    );
+    reply.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     reply.header('Access-Control-Max-Age', '86400');
     reply.code(204).header('Content-Length', '0').send();
   });
