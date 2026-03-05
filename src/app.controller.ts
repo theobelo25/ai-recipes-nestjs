@@ -12,6 +12,7 @@ export class AppController {
     return this.appService.getRoot();
   }
 
+  // healthcheck
   @Get('health')
   @Public()
   getHealth() {
