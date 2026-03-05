@@ -61,12 +61,13 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
   const port = configService.get<number>('APP_PORT') ?? 3000;
+  const host = configService.get<string>('APP_HOST') ?? '0.0.0.0';
 
   await app.register(fastifyCookie, cookieConfig);
   await app.register(helmet, helmetConfig);
 
-  await app.listen(port);
-  logger.log(`Server running on http://localhost:${port}`);
+  await app.listen(port, host);
+  logger.log(`Server running on http://${host}:${port}`);
 }
 bootstrap().catch((err) => {
   logger.error('Bootstrap failed', err);

@@ -4,6 +4,7 @@ import { z } from 'zod';
 export const envSchema = z.object({
   NODE_ENV: z.string().min(1),
   APP_PORT: z.coerce.number().int().positive().default(3000),
+  APP_HOST: z.string().default('0.0.0.0'),
   FRONTEND_ORIGIN: z.string().min(1),
   CORS_ORIGINS: z.string().min(1),
 
