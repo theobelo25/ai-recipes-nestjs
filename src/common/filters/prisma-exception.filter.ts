@@ -3,6 +3,7 @@ import {
   Catch,
   ArgumentsHost,
   HttpStatus,
+  Logger,
 } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/client';
@@ -32,6 +33,8 @@ const DEFAULT_RESPONSE = {
 
 @Catch(PrismaClientKnownRequestError)
 export class PrismaExceptionFilter implements ExceptionFilter {
+  private readonly logger = new Logger(PrismaExceptionFilter.name);
+
   constructor(private readonly httpAdapterHost: HttpAdapterHost) {}
 
   catch(exception: PrismaClientKnownRequestError, host: ArgumentsHost) {
@@ -39,8 +42,13 @@ export class PrismaExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const reply = ctx.getResponse<FastifyReply>();
 
-    const { statusCode, message } =
-      PRISMA_ERROR_MAP[exception.code] ?? DEFAULT_RESPONSE;
+    const mapped = PRISMA_ERROR_MAP[exception.code];
+    if (!mapped) {
+      this.logger.warn(
+        `Unmapped Prisma error: code=${exception.code} message=${exception.message} meta=${JSON.stringify(exception.meta ?? {})}`,
+      );
+    }
+    const { statusCode, message } = mapped ?? DEFAULT_RESPONSE;
 
     const responseBody = {
       statusCode,

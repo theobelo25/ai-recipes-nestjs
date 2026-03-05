@@ -3,6 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ValidationModule } from './common/validation/validation.module';
 import { PrismaExceptionFilter } from './common/filters/prisma-exception.filter';
+import { UnhandledExceptionFilter } from './common/filters/unhandled-exception.filter';
 import { ValidationExceptionFilter } from './common/filters/validation-exception.filter';
 import { UsersModule } from './domain/users/users.module';
 import { PrismaModule } from './prisma/prisma.module';
@@ -44,9 +45,10 @@ import { appConfig } from './config';
   providers: [
     AppService,
     { provide: APP_GUARD, useClass: ThrottlerGuard },
-    // Order: last registered runs first when exception is thrown
+    // Order: first registered is tried first; last is fallback for unhandled
     { provide: APP_FILTER, useClass: ValidationExceptionFilter },
     { provide: APP_FILTER, useClass: PrismaExceptionFilter },
+    { provide: APP_FILTER, useClass: UnhandledExceptionFilter },
   ],
 })
 export class AppModule {}
