@@ -13,7 +13,12 @@ import { ConfigService } from '@nestjs/config';
 import fastifyCookie from '@fastify/cookie';
 import helmet from '@fastify/helmet';
 import cors from '@fastify/cors';
-import { helmetConfig, corsConfig, cookieConfig } from './config/';
+import {
+  helmetConfig,
+  corsConfig,
+  cookieConfig,
+  isOriginAllowed,
+} from './config/';
 
 const logger = new Logger('Bootstrap');
 
@@ -26,6 +31,32 @@ async function bootstrap() {
   );
 
   const fastify = app.getHttpAdapter().getInstance();
+
+  fastify.addHook('onRequest', (request, reply, done) => {
+    if (request.method !== 'OPTIONS') return done();
+    const origin = request.headers.origin as string | undefined;
+    if (!origin) {
+      reply.code(204).header('Content-Length', '0').send();
+      return;
+    }
+    if (!isOriginAllowed(origin)) {
+      reply.code(204).header('Content-Length', '0').send();
+      return;
+    }
+    reply.header('Access-Control-Allow-Origin', origin);
+    reply.header('Access-Control-Allow-Credentials', 'true');
+    reply.header(
+      'Access-Control-Allow-Methods',
+      'GET, POST, PUT, PATCH, DELETE, OPTIONS',
+    );
+    reply.header(
+      'Access-Control-Allow-Headers',
+      'Content-Type, Authorization',
+    );
+    reply.header('Access-Control-Max-Age', '86400');
+    reply.code(204).header('Content-Length', '0').send();
+  });
+
   await fastify.register(cors, corsConfig);
 
   const validationModule = app.get(ValidationModule);
